@@ -50,27 +50,42 @@ module controller(input logic        clk,
 	logic inc, dec;
 	
 	   //assign a = KEY;
-   assign din = {KEY, ~KEY};
-   assign we = 1'b1;
+   //assign din = {KEY, ~KEY};
+   //assign we = 1'b1;
 	
 
-	always_ff @(negedge KEY[3]) begin
-		inc = 1;
+	always_ff @(negedge KEY[3] or negedge KEY[2] or negedge KEY[1] or negedge KEY[0]) begin
+		//a <= a + 4'd1;
+		
+		case(KEY)
+			4'b0111:	begin	
+							we <= 1'b0;
+							a <= a + 4'd1;
+							din <= din;
+						end
+			4'b1011:	begin
+							we <= 1'b0;
+							a <= a - 4'd1;
+							din <= din;
+						end
+			4'b1101:	begin	
+							we <= 1'b1;
+							a <= a;
+							din <= dout + 4'd1;
+						end
+			4'b1110: begin
+							we <= 1'b1;
+							a <= a;
+							din <= dout - 4'd1;
+						end
+			default:	begin	
+							we <= 1'b0;
+							a <= a;
+							din <= din;
+						end
+		endcase
 	end
-	always_ff @(negedge KEY[2]) begin
-		dec = 1;
-	end
-	
-		if(inc==1)
-			 a <= a + 4'd1;
-		else if(dec==1)
-			 a <= a - 4'd1;
-	
-	
-	
-	
 
-   
 endmodule
 		  
 module hex7seg(input logic [3:0] a,
@@ -96,7 +111,7 @@ module hex7seg(input logic [3:0] a,
 			4'd14:	y = 8'b_1111001;
 			4'd15:	y = 8'b_1110001;
 			default: y = 8'b11111111;
-	endcase
+		endcase
 endmodule
 
 // 16 X 8 synchronous RAM with old data read-during-write behavior
