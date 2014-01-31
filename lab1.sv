@@ -13,7 +13,7 @@ module lab1(input logic       clk,
    logic [7:0] 		      din, dout; // RAM data in and out
    logic 		      		we;        // RAM write enable
 
-   hex7seg h0( .a(a),         .y(hex0) ),	//Don't change this. h0 will display the current address. See circuit block diagram in lab1.pdf
+   hex7seg h0( .a(a),         .y(hex0) ),	
            h1( .a(dout[7:4]), .y(hex2) ),
            h2( .a(dout[3:0]), .y(hex3) );
 
@@ -46,27 +46,29 @@ module controller(input logic        clk,
 	always_ff @(negedge KEY[3]) begin
 		a <= a - 4'd1;
 	end
-*/
-	logic inc, dec;
-	
-	   //assign a = KEY;
+*/	
+	//assign a = KEY;
    //assign din = {KEY, ~KEY};
    //assign we = 1'b1;
 	
+	initial begin
+		a <= 4'b0;
+		din <= 8'b0;
+		we <= 1'b0;
+	end
+	
 
-	always_ff @(negedge KEY[3] or negedge KEY[2] or negedge KEY[1] or negedge KEY[0]) begin
-		//a <= a + 4'd1;
-		
+	always_ff @(negedge KEY[3], negedge KEY[2], negedge KEY[1], negedge KEY[0]) begin
 		case(KEY)
 			4'b0111:	begin	
 							we <= 1'b0;
 							a <= a + 4'd1;
-							din <= din;
+							din <= dout;
 						end
 			4'b1011:	begin
 							we <= 1'b0;
 							a <= a - 4'd1;
-							din <= din;
+							din <= dout;
 						end
 			4'b1101:	begin	
 							we <= 1'b1;
@@ -81,9 +83,10 @@ module controller(input logic        clk,
 			default:	begin	
 							we <= 1'b0;
 							a <= a;
-							din <= din;
+							din <= dout;
 						end
 		endcase
+		#5;
 	end
 
 endmodule
@@ -92,8 +95,27 @@ module hex7seg(input logic [3:0] a,
 					output logic [7:0] y);
 
    //assign y = {a,a}; // Replace this with your code
-	always_comb
+	always_ff
 		case(a)
+			4'd0:		y <= 8'b_0111111;
+			4'd1:		y <= 8'b_0000110;
+			4'd2:		y <= 8'b_1011011;
+			4'd3:		y <= 8'b_1001111;
+			4'd4:		y <= 8'b_1100110;
+			4'd5:		y <= 8'b_1101101;
+			4'd6:		y <= 8'b_1111101;
+			4'd7:		y <= 8'b_0000111;
+			4'd8:		y <= 8'b_1111111;
+			4'd9:		y <= 8'b_1100111;
+			4'd10:	y <= 8'b_1110111;
+			4'd11:	y <= 8'b_1111100;
+			4'd12:	y <= 8'b_0111001;
+			4'd13:	y <= 8'b_1011110;
+			4'd14:	y <= 8'b_1111001;
+			4'd15:	y <= 8'b_1110001;
+			default: y <= 8'b11111111;	
+		endcase
+		/*
 			4'd0:		y = 8'b_0111111;
 			4'd1:		y = 8'b_0000110;
 			4'd2:		y = 8'b_1011011;
@@ -111,7 +133,43 @@ module hex7seg(input logic [3:0] a,
 			4'd14:	y = 8'b_1111001;
 			4'd15:	y = 8'b_1110001;
 			default: y = 8'b11111111;
-		endcase
+			
+			4'd0:		assign y = 8'b_0111111;
+			4'd1:		assign y = 8'b_0000110;
+			4'd2:		assign y = 8'b_1011011;
+			4'd3:		assign y = 8'b_1001111;
+			4'd4:		assign y = 8'b_1100110;
+			4'd5:		assign y = 8'b_1101101;
+			4'd6:		assign y = 8'b_1111101;
+			4'd7:		assign y = 8'b_0000111;
+			4'd8:		assign y = 8'b_1111111;
+			4'd9:		assign y = 8'b_1100111;
+			4'd10:	assign y = 8'b_1110111;
+			4'd11:	assign y = 8'b_1111100;
+			4'd12:	assign y = 8'b_0111001;
+			4'd13:	assign y = 8'b_1011110;
+			4'd14:	assign y = 8'b_1111001;
+			4'd15:	assign y = 8'b_1110001;
+			default: assign y = 8'b11111111;			
+			
+			4'd0:		y <= 8'b_0111111;
+			4'd1:		y <= 8'b_0000110;
+			4'd2:		y <= 8'b_1011011;
+			4'd3:		y <= 8'b_1001111;
+			4'd4:		y <= 8'b_1100110;
+			4'd5:		y <= 8'b_1101101;
+			4'd6:		y <= 8'b_1111101;
+			4'd7:		y <= 8'b_0000111;
+			4'd8:		y <= 8'b_1111111;
+			4'd9:		y <= 8'b_1100111;
+			4'd10:	y <= 8'b_1110111;
+			4'd11:	y <= 8'b_1111100;
+			4'd12:	y <= 8'b_0111001;
+			4'd13:	y <= 8'b_1011110;
+			4'd14:	y <= 8'b_1111001;
+			4'd15:	y <= 8'b_1110001;
+			default: y <= 8'b11111111;			
+		*/
 endmodule
 
 // 16 X 8 synchronous RAM with old data read-during-write behavior
