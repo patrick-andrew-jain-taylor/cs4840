@@ -30,19 +30,46 @@ module controller(input logic        clk,
 						output logic 	     we);
 
    // Replace these with your code
-	
-	always_ff @(posedge clk) begin
-		if(@(negedge KEY[3]))
-			a <= a + 4'd1;
-		else if(@(negedge KEY[2]))
-			a <= a - 4'd1;
-		else
-			a <= a;
+	/*
+	reg[3:0] result;
+	always_ff @(negedge KEY[2] or negedge KEY[3]) begin
+		if(KEY[2] ==0) begin
+			result <= a - 4'd1;
+		end
+		else if(KEY[3] == 0) begin
+			result <= a + 4'd1;
+		end
 	end
+	assign a = result;
+	*/
+	/*
+	always_ff @(negedge KEY[3]) begin
+		a <= a - 4'd1;
+	end
+*/
+	logic inc, dec;
 	
-   //assign a = KEY;
+	   //assign a = KEY;
    assign din = {KEY, ~KEY};
    assign we = 1'b1;
+	
+
+	always_ff @(negedge KEY[3]) begin
+		inc = 1;
+	end
+	always_ff @(negedge KEY[2]) begin
+		dec = 1;
+	end
+	
+		if(inc==1)
+			 a <= a + 4'd1;
+		else if(dec==1)
+			 a <= a - 4'd1;
+	
+	
+	
+	
+
    
 endmodule
 		  
