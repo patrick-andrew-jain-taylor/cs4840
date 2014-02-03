@@ -51,14 +51,84 @@ module controller(input logic        clk,
    //assign din = {KEY, ~KEY};
    //assign we = 1'b1;
 	
+	enum logic [5:0] {Idle, IncA, DecA, IncV, DecV} state;
+	logic done;
+	
 	initial begin
 		a <= 4'b0;
 		din <= 8'b0;
 		we <= 1'b0;
+		done <= 1'b0;
 	end
 	
 
-	always_ff @(negedge KEY[3], negedge KEY[2], negedge KEY[1], negedge KEY[0]) begin
+	always_ff @(posedge clk) begin
+		case(state)
+			Idle: begin	we <= 1'b0;
+							a <= a;
+							din <= dout;
+							done <= 1'b0;
+							if(KEY == 4'b0111)	state <= IncA;
+							else if(KEY == 4'b1011) state <= DecA;
+							else if(KEY == 4'b1101) state <= IncV;
+							else if(KEY == 4'b1110) state <= DecV;
+							else state <= Idle;
+							end
+			IncA:	begin	
+							if(~done) begin
+								we <= 1'b0;
+								a <= a + 4'd1;
+								din <= dout;
+								done <= 1'b1;
+							end else if(done==1'b1 & KEY != 4'b1111) begin
+								we <= 1'b0;
+								a <= a;
+								din <= dout;
+							end else if(done==1'b1 & KEY == 4'b1111) state <= Idle;
+							else state <= Idle;
+					end
+			DecA: begin 
+							if(~done) begin
+								we <= 1'b0;
+								a <= a - 4'd1;
+								din <= dout;
+								done <= 1'b1;
+							end else if(done==1'b1 & KEY != 4'b1111) begin
+								we <= 1'b0;
+								a <= a;
+								din <= dout;
+							end else if(done==1'b1 & KEY == 4'b1111) state <= Idle;
+							else state <= Idle;
+					end
+			IncV: begin 
+							if(~done) begin
+								we <= 1'b1;
+								a <= a;
+								din <= dout + 4'd1;
+								done <= 1'b1;
+							end else if(done==1'b1 & KEY != 4'b1111) begin
+								we <= 1'b0;
+								a <= a;
+								din <= dout;
+							end else if(done==1'b1 & KEY == 4'b1111) state <= Idle;
+							else state <= Idle;
+					end
+			DecV:	begin 
+							if(~done) begin
+								we <= 1'b1;
+								a <= a;
+								din <= dout - 4'd1;
+								done <= 1'b1;
+							end else if(done==1'b1 & KEY != 4'b1111) begin
+								we <= 1'b0;
+								a <= a;
+								din <= dout;
+							end else if(done==1'b1 & KEY == 4'b1111) state <= Idle;
+							else state <= Idle;
+					end
+			default: state <= Idle;
+		endcase
+		/*
 		case(KEY)
 			4'b0111:	begin	
 							we <= 1'b0;
@@ -86,7 +156,7 @@ module controller(input logic        clk,
 							din <= dout;
 						end
 		endcase
-		#5;
+		*/
 	end
 
 endmodule
