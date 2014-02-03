@@ -30,26 +30,6 @@ module controller(input logic        clk,
 						output logic 	     we);
 
    // Replace these with your code
-	/*
-	reg[3:0] result;
-	always_ff @(negedge KEY[2] or negedge KEY[3]) begin
-		if(KEY[2] ==0) begin
-			result <= a - 4'd1;
-		end
-		else if(KEY[3] == 0) begin
-			result <= a + 4'd1;
-		end
-	end
-	assign a = result;
-	*/
-	/*
-	always_ff @(negedge KEY[3]) begin
-		a <= a - 4'd1;
-	end
-*/	
-	//assign a = KEY;
-   //assign din = {KEY, ~KEY};
-   //assign we = 1'b1;
 	
 	enum logic [5:0] {Idle, IncA, DecA, IncV, DecV} state;
 	logic done;
@@ -61,7 +41,8 @@ module controller(input logic        clk,
 		done <= 1'b0;
 	end
 	
-
+	//Use a state machine to fix debounce issue. Debounce of push button causes the circuit
+	//to count multiple times on a single push
 	always_ff @(posedge clk) begin
 		case(state)
 			Idle: begin	we <= 1'b0;
@@ -73,7 +54,7 @@ module controller(input logic        clk,
 							else if(KEY == 4'b1101) state <= IncV;
 							else if(KEY == 4'b1110) state <= DecV;
 							else state <= Idle;
-							end
+					end
 			IncA:	begin	
 							if(~done) begin
 								we <= 1'b0;
@@ -85,7 +66,6 @@ module controller(input logic        clk,
 								a <= a;
 								din <= dout;
 							end else if(done==1'b1 & KEY == 4'b1111) state <= Idle;
-							else state <= Idle;
 					end
 			DecA: begin 
 							if(~done) begin
@@ -98,7 +78,6 @@ module controller(input logic        clk,
 								a <= a;
 								din <= dout;
 							end else if(done==1'b1 & KEY == 4'b1111) state <= Idle;
-							else state <= Idle;
 					end
 			IncV: begin 
 							if(~done) begin
@@ -111,7 +90,6 @@ module controller(input logic        clk,
 								a <= a;
 								din <= dout;
 							end else if(done==1'b1 & KEY == 4'b1111) state <= Idle;
-							else state <= Idle;
 					end
 			DecV:	begin 
 							if(~done) begin
@@ -124,39 +102,9 @@ module controller(input logic        clk,
 								a <= a;
 								din <= dout;
 							end else if(done==1'b1 & KEY == 4'b1111) state <= Idle;
-							else state <= Idle;
 					end
 			default: state <= Idle;
 		endcase
-		/*
-		case(KEY)
-			4'b0111:	begin	
-							we <= 1'b0;
-							a <= a + 4'd1;
-							din <= dout;
-						end
-			4'b1011:	begin
-							we <= 1'b0;
-							a <= a - 4'd1;
-							din <= dout;
-						end
-			4'b1101:	begin	
-							we <= 1'b1;
-							a <= a;
-							din <= dout + 4'd1;
-						end
-			4'b1110: begin
-							we <= 1'b1;
-							a <= a;
-							din <= dout - 4'd1;
-						end
-			default:	begin	
-							we <= 1'b0;
-							a <= a;
-							din <= dout;
-						end
-		endcase
-		*/
 	end
 
 endmodule
@@ -185,61 +133,6 @@ module hex7seg(input logic [3:0] a,
 			4'd15:	y <= 8'b_1110001;
 			default: y <= 8'b11111111;	
 		endcase
-		/*
-			4'd0:		y = 8'b_0111111;
-			4'd1:		y = 8'b_0000110;
-			4'd2:		y = 8'b_1011011;
-			4'd3:		y = 8'b_1001111;
-			4'd4:		y = 8'b_1100110;
-			4'd5:		y = 8'b_1101101;
-			4'd6:		y = 8'b_1111101;
-			4'd7:		y = 8'b_0000111;
-			4'd8:		y = 8'b_1111111;
-			4'd9:		y = 8'b_1100111;
-			4'd10:	y = 8'b_1110111;
-			4'd11:	y = 8'b_1111100;
-			4'd12:	y = 8'b_0111001;
-			4'd13:	y = 8'b_1011110;
-			4'd14:	y = 8'b_1111001;
-			4'd15:	y = 8'b_1110001;
-			default: y = 8'b11111111;
-			
-			4'd0:		assign y = 8'b_0111111;
-			4'd1:		assign y = 8'b_0000110;
-			4'd2:		assign y = 8'b_1011011;
-			4'd3:		assign y = 8'b_1001111;
-			4'd4:		assign y = 8'b_1100110;
-			4'd5:		assign y = 8'b_1101101;
-			4'd6:		assign y = 8'b_1111101;
-			4'd7:		assign y = 8'b_0000111;
-			4'd8:		assign y = 8'b_1111111;
-			4'd9:		assign y = 8'b_1100111;
-			4'd10:	assign y = 8'b_1110111;
-			4'd11:	assign y = 8'b_1111100;
-			4'd12:	assign y = 8'b_0111001;
-			4'd13:	assign y = 8'b_1011110;
-			4'd14:	assign y = 8'b_1111001;
-			4'd15:	assign y = 8'b_1110001;
-			default: assign y = 8'b11111111;			
-			
-			4'd0:		y <= 8'b_0111111;
-			4'd1:		y <= 8'b_0000110;
-			4'd2:		y <= 8'b_1011011;
-			4'd3:		y <= 8'b_1001111;
-			4'd4:		y <= 8'b_1100110;
-			4'd5:		y <= 8'b_1101101;
-			4'd6:		y <= 8'b_1111101;
-			4'd7:		y <= 8'b_0000111;
-			4'd8:		y <= 8'b_1111111;
-			4'd9:		y <= 8'b_1100111;
-			4'd10:	y <= 8'b_1110111;
-			4'd11:	y <= 8'b_1111100;
-			4'd12:	y <= 8'b_0111001;
-			4'd13:	y <= 8'b_1011110;
-			4'd14:	y <= 8'b_1111001;
-			4'd15:	y <= 8'b_1110001;
-			default: y <= 8'b11111111;			
-		*/
 endmodule
 
 // 16 X 8 synchronous RAM with old data read-during-write behavior
