@@ -8,14 +8,20 @@
 #include "usbkeyboard.h"
 #include <pthread.h>
 
+//#define IPADDR(a,b,c,d) (htonl(((a)<<24)|((b)<<16)|((c)<<8)|(d)))
+//#define SERVER_HOST IPADDR(192,168,1,1)
+//#define SERVER_PORT htons(42000)
 
 #define SERVER_HOST "192.168.1.1"
 #define SERVER_PORT 42000
 
 #define BUFFER_SIZE 128
-#define MSG_BUFSIZE 258
+#define MSG_BUFSIZE 255
 #define BLINK_COUNT 40000000
+#define SLEEP_WAIT 200000000
 #define ALPHA_START 93
+#define FST_BOUND 122
+#define SND_BOUND 127
 
 typedef int bool;
 #define true 1
@@ -40,6 +46,7 @@ void *network_thread_f(void *);
 //Thread for cursor
 pthread_t cursor_thread;
 void *cursor_thread_f(void *);
+void clearScreen(int r);
 
 //Cursor row and col coordinates and blink counters
 int cr, cc, bctr;
@@ -50,18 +57,25 @@ char msg[MSG_BUFSIZE];
 int msgcidx;
 int msglen;
 
+//Cursor for receive region
+int rcr, rcc;
+
 static char clookup[];
+
+static char emptyLine[128]; //empty string to clear a line on the screen for writing
 
 int main()
 {
   int err, col;
 	
   struct sockaddr_in serv_addr;
-
+  
   struct usb_keyboard_packet packet;
   int transferred;
   char keystate[12];
-  	
+  
+  //serv_addr = {AF_INET, SERVER_PORT, {SERVER_HOST} };
+
 	//Initialize cursor values
 	cr = 46;
 	cc = 0;
@@ -71,18 +85,18 @@ int main()
 	msgcidx = 0;
 	msglen = 0;
 
+  rcr = 9;
+  rcc = 0;
+  
+  memset(emptyLine, ' ', 128); //Set variable to an empty line
+
   if ((err = fbopen()) != 0) {
     fprintf(stderr, "Error: Could not open framebuffer: %d\n", err);
     exit(1);
   }
-	
-	//Clear screen. Find more efficient way to do this if there's time.
-	int row;
-	for(row=0; row < 48; row++) {
-		for(col = 0; col < 128; col++) {
-			fbputchar(' ', row, col);
-		}
-	}
+  
+  //Clear screen contents from previous session
+  clearScreen(48);
 
   /* Draw rows of asterisks across the top and bottom of the screen */
   for (col = 0 ; col < 128 ; col++) {
@@ -124,6 +138,16 @@ int main()
 
 	//Start cursor thread
 	pthread_create(&cursor_thread, NULL, cursor_thread_f, NULL);
+  
+  /*
+    Display Welcome Message for a few seconds.
+    After message disappears, set "receive" region cursor to the top 
+  */
+  int wait;
+  for(wait = 0; wait < SLEEP_WAIT; wait++){
+  }
+  clearScreen(45);
+  rcr = 0;
 
   /* Look for and handle keypresses */
   for (;;) { 
@@ -189,59 +213,84 @@ int main()
 				*/
 				
 				if(packet.keycode[0] == 0x28) { //Enter pressed?
-					printf("%s \n", strcat(msg, "\n"));
-					write(sockfd, strcat(msg, "\n"), msglen+1);
-					msglen = 0;
+					printf("%s rcr:%d, rcc:%d, msglen:%d, msgcidx:%d\n", msg, rcr, rcc, msglen, msgcidx);
+          memset(msg+msglen, '\0', MSG_BUFSIZE - msglen); 
+          write(sockfd, msg, msglen);
+          fbputs(emptyLine, rcr, rcc);
+          fbputs("<Me> ", rcr, 0);
+          
+          //Wrap long messages sent by us to the next row 
+          if(msglen > FST_BOUND) {
+            char firstlineBuf[FST_BOUND+1];
+            char *secondline = msg + FST_BOUND;
+            strncpy(firstlineBuf, msg, FST_BOUND);
+            firstlineBuf[FST_BOUND+1] = '\0';
+            fbputs(firstlineBuf, rcr++, 5);
+
+            if(msglen > FST_BOUND + SND_BOUND) {
+              char secondlineBuf[SND_BOUND+1];
+              char *thirdline = msg + FST_BOUND + SND_BOUND;
+              strncpy(secondlineBuf, secondline, SND_BOUND);
+              fbputs(secondlineBuf, rcr++, 0);
+              fbputs(thirdline, rcr, 0);
+            }
+            else {
+              fbputs(secondline, rcr, 0);             
+            }
+          }
+          else
+            fbputs(msg, rcr, 5);
+
+          rcr++;
+          if(rcr > 44) {
+            rcr = 0;
+            clearScreen(45);  
+          }
+        
+          msglen = 0;
 					msgcidx = 0;
 					memset(msg, '\0', MSG_BUFSIZE);
 					
 					//Clear the message area. Make more efficient later.
-					int r, c;
-					for(r = 46; r < 48; r++) {
-						for(c = 0; c < 127; c++) {
-							fbputchar(' ', r, c);
-						}
-					}
+					int r;
+					for(r = 46; r < 48; r++)
+						fbputs(emptyLine, r, 0);
 
 					cr = 46;
 					cc = 0;
 				}
-				else {
+				else if(msglen < MSG_BUFSIZE - 1) {
 					uint8_t shift = 0x00;        
-					if(packet.modifiers == 0x02 || packet.modifiers == 0x20) {
-						shift = 0x35;
-					} 
-					
-					if(msgcidx < 257) {
+					if(packet.modifiers == 0x02 || packet.modifiers == 0x20)
+						shift = 0x35; 
+					            printf("hehe\n");
+					if(msgcidx < MSG_BUFSIZE-1) {
 						msg[msgcidx] = clookup[packet.keycode[0] - 0x04 + shift]; 
 						fbputchar(clookup[packet.keycode[0] - 0x04 + shift], cr, cc);
-						msgcidx++;
-						msglen++;
+						msgcidx++; 
+            if(msgcidx == msglen + 1)
+              msglen++;
 					}
 
-					if(cc > 127) {
+          cc++;
+					if(cc > 126) {
 						cc = 0;
-						cr++;
-					}
-					else {
-						cc++;
+						if(++cr == 48) {
+              cr = 47;
+              cc = 126;
+            }
 					}
 
-				printf("%s %c\n", keystate, (char) (ALPHA_START + (packet.keycode[0])));
-				fbputs(keystate, 6, 0);
-
+				  printf("%s %c, msgcidx: %d, msglen: %d, cr:%d, cc:%d\n", keystate, (char) (ALPHA_START + (packet.keycode[0])), 
+            msgcidx, msglen, cr, cc);
 				}
-
-
 			}
-
     }	
   }
 	
   /* Terminate the network thread */
   pthread_cancel(network_thread);
-	pthread_cancel(cursor_thread)
-	;
+	pthread_cancel(cursor_thread);
   /* Wait for the network thread to finish */
   pthread_join(network_thread, NULL);
 	pthread_join(cursor_thread, NULL);
@@ -257,7 +306,13 @@ void *network_thread_f(void *ignored)
   while ( (n = read(sockfd, &recvBuf, BUFFER_SIZE - 1)) > 0 ) {
     recvBuf[n] = '\0';
     printf("%s", recvBuf);
-    fbputs(recvBuf, 8, 0);
+    fbputs(recvBuf, rcr, rcc);
+  
+    rcr++;
+    if(rcr > 44) {
+      rcr = 0; 
+      clearScreen(45);
+    }
   }
 
   return NULL;
@@ -267,15 +322,19 @@ void *cursor_thread_f(void *ignored) {
 
 	//Cursor thread does not terminate after ESC is pressed. Should fix this later
 	for(;;) {
+
 		if(bctr == BLINK_COUNT) {
 			if(blink == false) {
-				fbputchar('|', cr, cc);
+				fbputchar('_', cr, cc);
 				blink = true;
 			}
 			else {
 				char c = ' ';
 				if(msgcidx < msglen)
-					c = msg[msgcidx];
+          c = msg[msgcidx];
+        else if(msgcidx == MSG_BUFSIZE-1)
+          c = msg[msgcidx-1];
+
 				fbputchar(c, cr, cc);
 				blink = false;
 			}
@@ -288,6 +347,13 @@ void *cursor_thread_f(void *ignored) {
 	
 	//Needed this in order to allow main thread to continue, why?
 	return NULL;
+}
+
+void clearScreen(int r) {
+	//Clear screen. Find more efficient way to do this if there's time.
+	int row;
+	for(row=0; row < r; row++)
+    fbputs(emptyLine, row, 0);
 }
 
 static char clookup[] = {
