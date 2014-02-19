@@ -160,15 +160,68 @@ int main()
 
 
       if(packet.keycode[0] == 0x2a) { //Backspace pressed?
-				if(msgcidx > 0 && msglen > 0) {
-					msgcidx--;
-					msglen--;
-				}
-				fbputchar(' ', cr, cc);
-        if(cc > 0) {
-          cc--;
-          fbputchar(' ', cr, cc);
-        }
+      	if(msgcidx < msglen && msgcidx != 0) {
+      		char *p = msg+msgcidx;
+      		char *end = msg+msgcidx-1;
+      		//int tmpcr, tmpcc;
+      		
+      		msgcidx--;
+      		msglen--;
+      		
+      		while(*p) {
+      			*(p-1) = *p;
+      			++p;
+      			
+      		}
+      		*(p-1) = '\0';
+      		
+      		if(cr == 47 && cc == 0) {
+      			//reset cursor to end of first line
+      			cr = 46;
+      			cc = 126;
+      			//tmpcr = 47;
+      			//tmpcc = 0;
+      			//print remainder of string on the second line
+      			fbputs(end, 47, 0);
+      			fbputchar(' ', 47, strlen(end));
+      		}
+      		else if(msglen > 126) {
+      			int size1 = 128 - msgcidx;
+						char end1[size1];
+						strncpy(end1, msg+msgcidx, size1-1);
+						end1[size1] = '\0';
+						
+						char *end2 = msg + 127;
+						cc--;
+						
+						//put end1 on first line
+						fbputs(end1, cr, cc);
+						//put end2 on second line
+						fbputs(end2, 47, 0);
+						fbputchar(' ', 47, strlen(end2));
+      		}
+      		else {
+      			cc--;
+      			//tmpcr = cr;
+      			//tmpcc = cc;
+	      		fbputs(end, cr, cc);      		
+	      		fbputchar(' ', cr, cc+strlen(end));
+      		}      		
+					
+					//fbputs(end, tmpcr, tmpcc);
+      		//fbputchar(' ', tmpcr, tmpcc+strlen(end));
+      	}
+      	else {
+					if(msgcidx > 0 && msglen > 0) {
+						msgcidx--;
+						msglen--;
+					}
+					fbputchar(' ', cr, cc);
+	        if(cc > 0) {
+	          cc--;
+	          fbputchar(' ', cr, cc);
+	        }
+	      }
       }
 			else if(packet.keycode[0] == 0x50){ //Left Arrow pressed?
 				if (msgcidx == msglen)
@@ -178,7 +231,7 @@ int main()
 				}
 
 				if (cc == 0 && cr == 47 ){
-					cc = 127;
+					cc = 126;
 					cr = 46;
 					msgcidx--;
 				}
