@@ -163,7 +163,6 @@ int main()
       	if(msgcidx < msglen && msgcidx != 0) {
       		char *p = msg+msgcidx;
       		char *end = msg+msgcidx-1;
-      		//int tmpcr, tmpcc;
       		
       		msgcidx--;
       		msglen--;
@@ -179,13 +178,12 @@ int main()
       			//reset cursor to end of first line
       			cr = 46;
       			cc = 126;
-      			//tmpcr = 47;
-      			//tmpcc = 0;
+      			
       			//print remainder of string on the second line
-      			fbputs(end, 47, 0);
-      			fbputchar(' ', 47, strlen(end));
+      			fbputs(end+1, 47, 0);
+      			fbputchar(' ', 47, strlen(end)-1);
       		}
-      		else if(msglen > 126) {
+      		else if(msglen > 126 && msgcidx < 127) {
       			int size1 = 128 - msgcidx;
 						char end1[size1];
 						strncpy(end1, msg+msgcidx, size1-1);
@@ -194,33 +192,40 @@ int main()
 						char *end2 = msg + 127;
 						cc--;
 						
-						//put end1 on first line
+						/*
+							Split the multiline message into two end parts, end1 and end2 
+							put end1 on first line and end2 on the second line
+						*/
 						fbputs(end1, cr, cc);
-						//put end2 on second line
 						fbputs(end2, 47, 0);
 						fbputchar(' ', 47, strlen(end2));
       		}
       		else {
       			cc--;
-      			//tmpcr = cr;
-      			//tmpcc = cc;
 	      		fbputs(end, cr, cc);      		
 	      		fbputchar(' ', cr, cc+strlen(end));
       		}      		
 					
-					//fbputs(end, tmpcr, tmpcc);
-      		//fbputchar(' ', tmpcr, tmpcc+strlen(end));
-      	}
+      	} // end of 'if(msgcidx < msglen && msgcidx != 0)'
       	else {
 					if(msgcidx > 0 && msglen > 0) {
 						msgcidx--;
 						msglen--;
 					}
-					fbputchar(' ', cr, cc);
-	        if(cc > 0) {
-	          cc--;
-	          fbputchar(' ', cr, cc);
-	        }
+					
+					if(cr == 47 && cc == 0) {
+						//		printf("bkspce\n");
+						cr = 46;
+						cc = 126;
+						fbputchar(' ', cr, cc);
+					}
+					else {
+						fbputchar(' ', cr, cc);
+		        if(cc > 0) {
+		          cc--;
+		          fbputchar(' ', cr, cc);
+		        }
+		      }
 	      }
       }
 			else if(packet.keycode[0] == 0x50){ //Left Arrow pressed?
@@ -245,12 +250,12 @@ int main()
 			else if(packet.keycode[0] == 0x4f){ //Right Arrow pressed?
 					if (msgcidx < msglen){
 						fbputchar(msg[msgcidx], cr, cc);
-						if (cr == 46 && cc == 127){
+						if (cr == 46 && cc == 126){
 							cc = 0;
 							cr = 47;
 							msgcidx++;
 						}
-						else if (cr == 47 && cc == 127){
+						else if (cr == 47 && cc == 126){
 						}
 						else{
 							msgcidx++;
