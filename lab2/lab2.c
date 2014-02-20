@@ -156,10 +156,13 @@ int main()
 			      &transferred, 0);
     if (transferred == sizeof(packet)) {
       sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
-	      packet.keycode[1]);
-
-
-      if(packet.keycode[0] == 0x2a) { //Backspace pressed?
+	      packet.keycode[1]);	
+			
+     	if (packet.keycode[0] == 0x29) { // ESC pressed?
+					break;
+			}
+			 
+			if(packet.keycode[0] == 0x2a) { //Backspace pressed?
       	if(msgcidx < msglen && msgcidx != 0) {
       		char *p = msg+msgcidx;
       		char *end = msg+msgcidx-1;
@@ -214,7 +217,6 @@ int main()
 					}
 					
 					if(cr == 47 && cc == 0) {
-						//		printf("bkspce\n");
 						cr = 46;
 						cc = 126;
 						fbputchar(' ', cr, cc);
@@ -263,15 +265,16 @@ int main()
 						}
 				}
 			}
-      else if(packet.keycode[0] >= 0x04 && packet.keycode[0] <= 0x38) { //Alphanumeric keys and symbols
-				/*
-				if (packet.keycode[0] == 0x29) { // ESC pressed?
-						break;
-				}	
-				*/
+      else if(packet.keycode[0] >= 0x04 && packet.keycode[0] <= 0x38) { //Alphanumeric keys and symbols			
 				
 				if(packet.keycode[0] == 0x28) { //Enter pressed?
-					printf("%s rcr:%d, rcc:%d, msglen:%d, msgcidx:%d\n", msg, rcr, rcc, msglen, msgcidx);
+					printf("%s rcr:%d, rcc:%d, msglen:%d, msgcidx:%d\n", 
+									msg, 
+									rcr, 
+									rcc, 
+									msglen, 
+									msgcidx);
+									
           memset(msg+msglen, '\0', MSG_BUFSIZE - msglen); 
           write(sockfd, msg, msglen);
           fbputs(emptyLine, rcr, rcc);
@@ -316,12 +319,44 @@ int main()
 
 					cr = 46;
 					cc = 0;
-				}
+				} //End of Enter key case
 				else if(msglen < MSG_BUFSIZE - 1) {
+					
+					if(msgcidx < msglen) {
+						char *p = msg + msgcidx;
+						char tmp1 = *p;
+						char tmp2 = *(p+1);
+						
+						while(*p) {
+							++p;
+							*p = tmp1;
+							tmp1 = tmp2;
+							tmp2 = *(p+1);
+						}
+						
+						msglen++;
+						if(msglen > 126) {
+							int size1 = 128 - msgcidx;
+							char end1[size1];
+							strncpy(end1, msg+msgcidx, size1-1);
+							end1[size1] = '\0';
+							
+							char *end2 = msg + 127;
+							
+							fbputs(end1, 46, cc);
+							fbputs(end2, 47, 0);
+						}
+						else {
+							p = msg + msgcidx+1;
+							fbputs(p, cr, cc+1);
+						}
+						
+					}
+								
 					uint8_t shift = 0x00;        
 					if(packet.modifiers == 0x02 || packet.modifiers == 0x20)
 						shift = 0x35; 
-					            printf("hehe\n");
+
 					if(msgcidx < MSG_BUFSIZE-1) {
 						msg[msgcidx] = clookup[packet.keycode[0] - 0x04 + shift]; 
 						fbputchar(clookup[packet.keycode[0] - 0x04 + shift], cr, cc);
@@ -341,17 +376,17 @@ int main()
 
 				  printf("%s %c, msgcidx: %d, msglen: %d, cr:%d, cc:%d\n", keystate, (char) (ALPHA_START + (packet.keycode[0])), 
             msgcidx, msglen, cr, cc);
-				}
-			}
+				} //End of 'if(msglen < MSG_BUFSIZE - 1)'
+			} //End of Alphanumeric Keys and Symbols
     }	
-  }
+  } //End of for(;;)
 	
   /* Terminate the network thread */
   pthread_cancel(network_thread);
 	pthread_cancel(cursor_thread);
+
   /* Wait for the network thread to finish */
   pthread_join(network_thread, NULL);
-	pthread_join(cursor_thread, NULL);
 
   return 0;
 }
