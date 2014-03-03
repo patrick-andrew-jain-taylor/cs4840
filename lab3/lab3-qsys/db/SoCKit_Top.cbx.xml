@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<LOG_ROOT>
+	<PROJECT NAME="SoCKit_Top">
+		<CBX_INST_ENTRY INSTANCE_NAME="|SoCKit_Top|lab3:u0|lab3_hps_0:hps_0|lab3_hps_0_hps_io:hps_io|lab3_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_p0:p0|hps_sdram_p0_acv_hard_memphy:umemphy|hps_sdram_p0_acv_hard_io_pads:uio_pads|hps_sdram_p0_acv_hard_addr_cmd_pads:uaddr_cmd_pads|altddio_out:clock_gen[0].umem_ck_pad" CBX_FILE_NAME="ddio_out_uqe.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|SoCKit_Top|lab3:u0|lab3_master_0:master_0|altera_avalon_sc_fifo:fifo|altsyncram:mem_rtl_0" CBX_FILE_NAME="altsyncram_g0n1.tdf"/>
+	</PROJECT>
+</LOG_ROOT>

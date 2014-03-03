@@ -654,7 +654,15 @@ module SoCKit_Top(
             .hps_io_hps_io_uart0_inst_RX     		  (hps_io_hps_io_uart0_inst_RX),     //                .hps_io_uart0_inst_RX
             .hps_io_hps_io_uart0_inst_TX     		  (hps_io_hps_io_uart0_inst_TX),     //                .hps_io_uart0_inst_TX
             .hps_io_hps_io_i2c1_inst_SDA     		  (hps_io_hps_io_i2c1_inst_SDA),     //                .hps_io_i2c1_inst_SDA
-            .hps_io_hps_io_i2c1_inst_SCL     		  (hps_io_hps_io_i2c1_inst_SCL)      //                .hps_io_i2c1_inst_SCL
+            .hps_io_hps_io_i2c1_inst_SCL     		  (hps_io_hps_io_i2c1_inst_SCL),      //                .hps_io_i2c1_inst_SCL
+				.vga_R (VGA_R),
+				.vga_G (VGA_G),
+				.vga_B (VGA_B),
+				.vga_CLK (VGA_CLK),
+				.vga_HS (VGA_HS),
+				.vga_VS (VGA_VS),
+				.vga_BLANK_n (VGA_BLANK_n),
+				.vga_SYNC_n (VGA_SYNC_n)
 	    );
 
 endmodule

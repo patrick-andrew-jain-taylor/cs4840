@@ -1,0 +1,253 @@
+Flow report for SoCKit_Top
+Mon Mar  3 14:56:34 2014
+Quartus II 32-bit Version 13.1.1 Build 166 11/26/2013 SJ Full Version
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Flow Summary
+  3. Flow Settings
+  4. Flow Non-Default Global Settings
+  5. Flow Elapsed Time
+  6. Flow OS Summary
+  7. Flow Log
+  8. Flow Messages
+  9. Flow Suppressed Messages
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 1991-2013 Altera Corporation
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, Altera MegaCore Function License 
+Agreement, or other applicable license agreement, including, 
+without limitation, that your use is for the sole purpose of 
+programming logic devices manufactured by Altera and sold by 
+Altera or its authorized distributors.  Please refer to the 
+applicable agreement for further details.
+
+
+
++-------------------------------------------------------------------------------+
+; Flow Summary                                                                  ;
++---------------------------------+---------------------------------------------+
+; Flow Status                     ; Successful - Mon Mar  3 14:56:34 2014       ;
+; Quartus II 32-bit Version       ; 13.1.1 Build 166 11/26/2013 SJ Full Version ;
+; Revision Name                   ; SoCKit_Top                                  ;
+; Top-level Entity Name           ; SoCKit_Top                                  ;
+; Family                          ; Cyclone V                                   ;
+; Device                          ; 5CSXFC6D6F31C8ES                            ;
+; Timing Models                   ; Preliminary                                 ;
+; Logic utilization (in ALMs)     ; 663 / 41,910 ( 2 % )                        ;
+; Total registers                 ; 1050                                        ;
+; Total pins                      ; 289 / 499 ( 58 % )                          ;
+; Total virtual pins              ; 0                                           ;
+; Total block memory bits         ; 512 / 5,662,720 ( < 1 % )                   ;
+; Total DSP Blocks                ; 0 / 112 ( 0 % )                             ;
+; Total HSSI RX PCSs              ; 0 / 9 ( 0 % )                               ;
+; Total HSSI PMA RX Deserializers ; 0 / 9 ( 0 % )                               ;
+; Total HSSI TX PCSs              ; 0 / 9 ( 0 % )                               ;
+; Total HSSI TX Channels          ; 0 / 9 ( 0 % )                               ;
+; Total PLLs                      ; 0 / 15 ( 0 % )                              ;
+; Total DLLs                      ; 1 / 4 ( 25 % )                              ;
++---------------------------------+---------------------------------------------+
+
+
++-----------------------------------------+
+; Flow Settings                           ;
++-------------------+---------------------+
+; Option            ; Setting             ;
++-------------------+---------------------+
+; Start date & time ; 03/03/2014 14:48:30 ;
+; Main task         ; Compilation         ;
+; Revision Name     ; SoCKit_Top          ;
++-------------------+---------------------+
+
+
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Flow Non-Default Global Settings                                                                                                                                                    ;
++---------------------------------------+--------------------------------------------------------------------+---------------+---------------------------------------+----------------+
+; Assignment Name                       ; Value                                                              ; Default Value ; Entity Name                           ; Section Id     ;
++---------------------------------------+--------------------------------------------------------------------+---------------+---------------------------------------+----------------+
+; COMPILER_SIGNATURE_ID                 ; 246917495095300.139387611023427                                    ; --            ; --                                    ; --             ;
+; ECO_REGENERATE_REPORT                 ; On                                                                 ; Off           ; --                                    ; --             ;
+; EDA_OUTPUT_DATA_FORMAT                ; Vhdl                                                               ; --            ; --                                    ; eda_simulation ;
+; EDA_SIMULATION_TOOL                   ; ModelSim-Altera (VHDL)                                             ; <None>        ; --                                    ; --             ;
+; HPS_ISW_FILE                          ; lab3/synthesis/submodules/sequencer/tclrpt.pre.h                   ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; HPS_ISW_FILE                          ; lab3/synthesis/submodules/sequencer/sequencer.pre.c                ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; HPS_ISW_FILE                          ; lab3/synthesis/submodules/sequencer/sdram_io.pre.h                 ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; HPS_ISW_FILE                          ; lab3/synthesis/submodules/sequencer/tclrpt.pre.c                   ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; HPS_ISW_FILE                          ; lab3/synthesis/submodules/sequencer/system.pre.h                   ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; HPS_ISW_FILE                          ; lab3/synthesis/submodules/sequencer/sequencer_auto_ac_init.pre.c   ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; HPS_ISW_FILE                          ; lab3/synthesis/submodules/sequencer/sequencer_defines.pre.h        ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; HPS_ISW_FILE                          ; lab3/synthesis/submodules/sequencer/alt_types.pre.h                ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; HPS_ISW_FILE                          ; lab3/synthesis/submodules/sequencer/sequencer_auto_inst_init.pre.c ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; HPS_ISW_FILE                          ; lab3/synthesis/submodules/sequencer/emif.pre.xml                   ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; HPS_ISW_FILE                          ; lab3/synthesis/submodules/sequencer/sequencer.pre.h                ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; HPS_ISW_FILE                          ; lab3/synthesis/submodules/sequencer/sequencer_auto.pre.h           ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; HPS_ISW_FILE                          ; lab3/synthesis/submodules/hps.pre.xml                              ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; HPS_PARTITION                         ; On                                                                 ; --            ; lab3_hps_0_hps_io_border              ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; altera_avalon_packets_to_master       ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; altera_avalon_sc_fifo                 ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; altera_avalon_st_bytes_to_packets     ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; altera_avalon_st_jtag_interface       ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; altera_avalon_st_packets_to_bytes     ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; altera_merlin_axi_master_ni           ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; altera_merlin_burst_adapter           ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; altera_merlin_master_agent            ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; altera_merlin_master_translator       ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; altera_merlin_slave_agent             ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; altera_merlin_slave_translator        ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; altera_merlin_width_adapter           ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; altera_reset_controller               ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3                                  ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_hps_0                            ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_hps_0_hps_io                     ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_irq_mapper                       ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_master_0                         ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_master_0_b2p_adapter             ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_master_0_p2b_adapter             ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_master_0_timing_adt              ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_mm_interconnect_0                ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_mm_interconnect_0_addr_router    ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_mm_interconnect_0_cmd_xbar_demux ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_mm_interconnect_0_cmd_xbar_mux   ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_mm_interconnect_0_id_router      ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_mm_interconnect_0_rsp_xbar_demux ; --             ;
+; IP_TOOL_ENV                           ; Qsys                                                               ; --            ; lab3_mm_interconnect_0_rsp_xbar_mux   ; --             ;
+; IP_TOOL_NAME                          ; altera_avalon_packets_to_master                                    ; --            ; altera_avalon_packets_to_master       ; --             ;
+; IP_TOOL_NAME                          ; altera_avalon_sc_fifo                                              ; --            ; altera_avalon_sc_fifo                 ; --             ;
+; IP_TOOL_NAME                          ; altera_avalon_st_bytes_to_packets                                  ; --            ; altera_avalon_st_bytes_to_packets     ; --             ;
+; IP_TOOL_NAME                          ; altera_jtag_dc_streaming                                           ; --            ; altera_avalon_st_jtag_interface       ; --             ;
+; IP_TOOL_NAME                          ; altera_avalon_st_packets_to_bytes                                  ; --            ; altera_avalon_st_packets_to_bytes     ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_axi_master_ni                                        ; --            ; altera_merlin_axi_master_ni           ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_burst_adapter                                        ; --            ; altera_merlin_burst_adapter           ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_master_agent                                         ; --            ; altera_merlin_master_agent            ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_master_translator                                    ; --            ; altera_merlin_master_translator       ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_slave_agent                                          ; --            ; altera_merlin_slave_agent             ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_slave_translator                                     ; --            ; altera_merlin_slave_translator        ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_width_adapter                                        ; --            ; altera_merlin_width_adapter           ; --             ;
+; IP_TOOL_NAME                          ; altera_reset_controller                                            ; --            ; altera_reset_controller               ; --             ;
+; IP_TOOL_NAME                          ; Qsys                                                               ; --            ; lab3                                  ; --             ;
+; IP_TOOL_NAME                          ; altera_hps                                                         ; --            ; lab3_hps_0                            ; --             ;
+; IP_TOOL_NAME                          ; altera_hps_io                                                      ; --            ; lab3_hps_0_hps_io                     ; --             ;
+; IP_TOOL_NAME                          ; altera_irq_mapper                                                  ; --            ; lab3_irq_mapper                       ; --             ;
+; IP_TOOL_NAME                          ; altera_jtag_avalon_master                                          ; --            ; lab3_master_0                         ; --             ;
+; IP_TOOL_NAME                          ; channel_adapter                                                    ; --            ; lab3_master_0_b2p_adapter             ; --             ;
+; IP_TOOL_NAME                          ; channel_adapter                                                    ; --            ; lab3_master_0_p2b_adapter             ; --             ;
+; IP_TOOL_NAME                          ; timing_adapter                                                     ; --            ; lab3_master_0_timing_adt              ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_interconnect_wrapper                                 ; --            ; lab3_mm_interconnect_0                ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_router                                               ; --            ; lab3_mm_interconnect_0_addr_router    ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_demultiplexer                                        ; --            ; lab3_mm_interconnect_0_cmd_xbar_demux ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_multiplexer                                          ; --            ; lab3_mm_interconnect_0_cmd_xbar_mux   ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_router                                               ; --            ; lab3_mm_interconnect_0_id_router      ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_demultiplexer                                        ; --            ; lab3_mm_interconnect_0_rsp_xbar_demux ; --             ;
+; IP_TOOL_NAME                          ; altera_merlin_multiplexer                                          ; --            ; lab3_mm_interconnect_0_rsp_xbar_mux   ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; altera_avalon_packets_to_master       ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; altera_avalon_sc_fifo                 ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; altera_avalon_st_bytes_to_packets     ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; altera_avalon_st_jtag_interface       ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; altera_avalon_st_packets_to_bytes     ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; altera_merlin_axi_master_ni           ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; altera_merlin_burst_adapter           ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; altera_merlin_master_agent            ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; altera_merlin_master_translator       ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; altera_merlin_slave_agent             ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; altera_merlin_slave_translator        ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; altera_merlin_width_adapter           ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; altera_reset_controller               ; --             ;
+; IP_TOOL_VERSION                       ; 13.1.1                                                             ; --            ; lab3                                  ; --             ;
+; IP_TOOL_VERSION                       ; 13.1.1                                                             ; --            ; lab3_hps_0                            ; --             ;
+; IP_TOOL_VERSION                       ; 13.1.1                                                             ; --            ; lab3_hps_0_hps_io                     ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; lab3_irq_mapper                       ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; lab3_master_0                         ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; lab3_master_0_b2p_adapter             ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; lab3_master_0_p2b_adapter             ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; lab3_master_0_timing_adt              ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; lab3_mm_interconnect_0                ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; lab3_mm_interconnect_0_addr_router    ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; lab3_mm_interconnect_0_cmd_xbar_demux ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; lab3_mm_interconnect_0_cmd_xbar_mux   ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; lab3_mm_interconnect_0_id_router      ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; lab3_mm_interconnect_0_rsp_xbar_demux ; --             ;
+; IP_TOOL_VERSION                       ; 13.1                                                               ; --            ; lab3_mm_interconnect_0_rsp_xbar_mux   ; --             ;
+; MAX_CORE_JUNCTION_TEMP                ; 85                                                                 ; --            ; --                                    ; --             ;
+; MIN_CORE_JUNCTION_TEMP                ; 0                                                                  ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/../../lab3.cmp                                      ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/lab3_hps_0_hps.svd                                  ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/../../lab3.qsys                                     ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/submodules/sequencer/tclrpt.pre.h                   ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/submodules/sequencer/sequencer.pre.c                ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/submodules/sequencer/sdram_io.pre.h                 ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/submodules/sequencer/tclrpt.pre.c                   ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/submodules/sequencer/system.pre.h                   ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/submodules/sequencer/sequencer_auto_ac_init.pre.c   ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/submodules/sequencer/sequencer_defines.pre.h        ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/submodules/sequencer/alt_types.pre.h                ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/submodules/sequencer/sequencer_auto_inst_init.pre.c ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/submodules/sequencer/emif.pre.xml                   ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/submodules/sequencer/sequencer.pre.h                ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/submodules/sequencer/sequencer_auto.pre.h           ; --            ; --                                    ; --             ;
+; MISC_FILE                             ; lab3/synthesis/submodules/hps.pre.xml                              ; --            ; --                                    ; --             ;
+; PARTITION_COLOR                       ; 16764057                                                           ; --            ; --                                    ; Top            ;
+; PARTITION_FITTER_PRESERVATION_LEVEL   ; PLACEMENT_AND_ROUTING                                              ; --            ; --                                    ; Top            ;
+; PARTITION_NETLIST_TYPE                ; SOURCE                                                             ; --            ; --                                    ; Top            ;
+; POWER_BOARD_THERMAL_MODEL             ; None (CONSERVATIVE)                                                ; --            ; --                                    ; --             ;
+; POWER_PRESET_COOLING_SOLUTION         ; 23 MM HEAT SINK WITH 200 LFPM AIRFLOW                              ; --            ; --                                    ; --             ;
+; PROJECT_OUTPUT_DIRECTORY              ; output_files                                                       ; --            ; --                                    ; --             ;
+; SLD_FILE                              ; lab3/synthesis/lab3.regmap                                         ; --            ; --                                    ; --             ;
+; SLD_FILE                              ; lab3/synthesis/lab3.debuginfo                                      ; --            ; --                                    ; --             ;
+; SLD_INFO                              ; QSYS_NAME lab3 HAS_SOPCINFO 1 GENERATION_ID 1393875235             ; --            ; lab3                                  ; --             ;
+; SOPCINFO_FILE                         ; lab3/synthesis/../../lab3.sopcinfo                                 ; --            ; --                                    ; --             ;
+; SYNTHESIS_ONLY_QIP                    ; On                                                                 ; --            ; --                                    ; --             ;
+; USE_DLL_FREQUENCY_FOR_DQS_DELAY_CHAIN ; On                                                                 ; Off           ; --                                    ; --             ;
++---------------------------------------+--------------------------------------------------------------------+---------------+---------------------------------------+----------------+
+
+
++-------------------------------------------------------------------------------------------------------------------------------+
+; Flow Elapsed Time                                                                                                             ;
++---------------------------+--------------+-------------------------+---------------------+------------------------------------+
+; Module Name               ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
++---------------------------+--------------+-------------------------+---------------------+------------------------------------+
+; Analysis & Synthesis      ; 00:00:27     ; 1.0                     ; 527 MB              ; 00:00:26                           ;
+; Fitter                    ; 00:04:35     ; 1.1                     ; 1753 MB             ; 00:05:02                           ;
+; Assembler                 ; 00:00:33     ; 1.0                     ; 519 MB              ; 00:00:30                           ;
+; TimeQuest Timing Analyzer ; 00:01:54     ; 1.2                     ; 1174 MB             ; 00:01:49                           ;
+; EDA Netlist Writer        ; 00:00:04     ; 1.0                     ; 404 MB              ; 00:00:04                           ;
+; Total                     ; 00:07:33     ; --                      ; --                  ; 00:07:51                           ;
++---------------------------+--------------+-------------------------+---------------------+------------------------------------+
+
+
++---------------------------------------------------------------------------------------------+
+; Flow OS Summary                                                                             ;
++---------------------------+------------------+----------------+------------+----------------+
+; Module Name               ; Machine Hostname ; OS Name        ; OS Version ; Processor type ;
++---------------------------+------------------+----------------+------------+----------------+
+; Analysis & Synthesis      ; micro10          ; CentOS release ; 5          ; x86_64         ;
+; Fitter                    ; micro10          ; CentOS release ; 5          ; x86_64         ;
+; Assembler                 ; micro10          ; CentOS release ; 5          ; x86_64         ;
+; TimeQuest Timing Analyzer ; micro10          ; CentOS release ; 5          ; x86_64         ;
+; EDA Netlist Writer        ; micro10          ; CentOS release ; 5          ; x86_64         ;
++---------------------------+------------------+----------------+------------+----------------+
+
+
+------------
+; Flow Log ;
+------------
+quartus_map --read_settings_files=on --write_settings_files=off lab3 -c SoCKit_Top
+quartus_fit --read_settings_files=off --write_settings_files=off lab3 -c SoCKit_Top
+quartus_asm --read_settings_files=off --write_settings_files=off lab3 -c SoCKit_Top
+quartus_sta lab3 -c SoCKit_Top
+quartus_eda --read_settings_files=off --write_settings_files=off lab3 -c SoCKit_Top
+
+
+

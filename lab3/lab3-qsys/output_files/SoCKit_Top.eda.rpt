@@ -1,0 +1,59 @@
+EDA Netlist Writer report for SoCKit_Top
+Mon Mar  3 14:56:34 2014
+Quartus II 32-bit Version 13.1.1 Build 166 11/26/2013 SJ Full Version
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. EDA Netlist Writer Summary
+  3. EDA Netlist Writer Messages
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 1991-2013 Altera Corporation
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, Altera MegaCore Function License 
+Agreement, or other applicable license agreement, including, 
+without limitation, that your use is for the sole purpose of 
+programming logic devices manufactured by Altera and sold by 
+Altera or its authorized distributors.  Please refer to the 
+applicable agreement for further details.
+
+
+
++-------------------------------------------------------------------+
+; EDA Netlist Writer Summary                                        ;
++---------------------------+---------------------------------------+
+; EDA Netlist Writer Status ; Successful - Mon Mar  3 14:56:34 2014 ;
+; Revision Name             ; SoCKit_Top                            ;
+; Top-level Entity Name     ; SoCKit_Top                            ;
+; Family                    ; Cyclone V                             ;
++---------------------------+---------------------------------------+
+
+
++-----------------------------+
+; EDA Netlist Writer Messages ;
++-----------------------------+
+Info: *******************************************************************
+Info: Running Quartus II 32-bit EDA Netlist Writer
+    Info: Version 13.1.1 Build 166 11/26/2013 SJ Full Version
+    Info: Processing started: Mon Mar  3 14:56:30 2014
+Info: Command: quartus_eda --read_settings_files=off --write_settings_files=off lab3 -c SoCKit_Top
+Warning (11101): Unable to generate the VHDL EDA simulation netlist files because the Quartus II software does not currently support VHDL post-compilation simulation for the Cyclone V devices.
+Info: Quartus II 32-bit EDA Netlist Writer was successful. 0 errors, 1 warning
+    Info: Peak virtual memory: 413 megabytes
+    Info: Processing ended: Mon Mar  3 14:56:34 2014
+    Info: Elapsed time: 00:00:04
+    Info: Total CPU time (on all processors): 00:00:04
+
+
