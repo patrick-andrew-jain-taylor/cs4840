@@ -4,16 +4,13 @@
  * Stephen A. Edwards, Columbia University
  */
 
-module VGA_LED_Emulator #(parameter BALL_SZ = 40)
-
-(
+module VGA_LED_Emulator (
  input logic 	    clk50, reset,
  //input logic [7:0]  hex0, hex1, hex2, hex3, hex4, hex5, hex6, hex7,
  input logic [9:0] cx, cy,
  output logic [7:0] VGA_R, VGA_G, VGA_B,
  output logic 	    VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_n, VGA_SYNC_n);
 
-	 localparam R = BALL_SZ*BALL_SZ;
 /*
  * 640 X 480 VGA timing for a 50 MHz clock: one pixel every other cycle
  * 
@@ -126,60 +123,9 @@ module VGA_LED_Emulator #(parameter BALL_SZ = 40)
 				black
 	 */
 
-	 logic inBall;	// condition whether (hc,vc) is inside ball
-	 logic [9:0] x, y;
-	 
-	 assign x = cx - hcount[10:1];
-	 assign y = cy - vcount;
-
-	 assign inBall = ((x*x + y*y) < R);
-	 
-
-	 // Can comment out this stuff, related to checking whether the current scanned pixel is within
-	 // the 7 segment display check conditions
-	 /*
-   logic 			     inChar; // In any character
-
-   assign inChar = (vcount[9:7] == 3'd1) &
-		   (hcount[10:7] != 4'd0 & hcount[10:7] != 4'd9);
-   
-   logic [2:0] 			     charx; // Coordinate within the 8x16 char
-   logic [3:0] 			     chary;
-
-   assign charx = hcount[6:4];
-   assign chary = vcount[6:3];
-
-   logic horizBar, leftCol, rightCol, topCol, botCol; // Parts of the disp.
-
-   assign horizBar = !(charx[2:1] == 2'b11);  // When in any horizontal bar
-   assign leftCol  = (charx == 3'd0);         // When in left column
-   assign rightCol = (charx == 3'd5);         // When in right column
-   assign topCol   = !chary[3] & !(chary[2:0] == 3'd7); // Top columns
-   assign botCol   = (chary >= 4'd6) & (chary <= 4'd12); // Bottom columns
-
-   logic [7:0] segment; // True when in each segment
-   assign segment[0] = horizBar & (chary == 4'd 0);
-   assign segment[1] = rightCol & topCol;
-   assign segment[2] = rightCol & botCol;
-   assign segment[3] = horizBar & (chary == 4'd 12);
-   assign segment[4] = leftCol & botCol;
-   assign segment[5] = leftCol & topCol;
-   assign segment[6] = horizBar & (chary == 4'd 6);
-   assign segment[7] = (charx == 3'd6) & (chary == 4'd14);
-
-   logic [2:0] column; // Being displayed
-   assign column = hcount[9:7];
-   
-   logic [7:0] curSegs;
-   assign curSegs = column == 3'd1 ? hex0 :
-		    column == 3'd2 ? hex1 :
-		    column == 3'd3 ? hex2 :
-		    column == 3'd4 ? hex3 :
-		    column == 3'd5 ? hex4 :
-		    column == 3'd6 ? hex5 :
-		    column == 3'd7 ? hex6 :
-		    hex7;
-   */
+	 logic inBall;				// condition whether (hc,vc) is inside ball
+	 parameter R2 = 1600;	// radius of ball squared
+	 assign inBall = (( (cx - hcount[10:1])*(cx - hcount[10:1]) + (cy - vcount)*(cy - vcount) ) < R2);
 	
    always_comb begin
       {VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0}; // Black

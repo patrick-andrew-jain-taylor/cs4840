@@ -17,6 +17,8 @@
  *
  * Check code style with
  * checkpatch.pl --file --no-tree vga_led.c
+ 
+ 		Peter Xu, Patrick Taylor
  */
 
 #include <linux/module.h>
