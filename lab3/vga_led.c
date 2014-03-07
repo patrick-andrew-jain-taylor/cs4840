@@ -18,7 +18,7 @@
  * Check code style with
  * checkpatch.pl --file --no-tree vga_led.c
  
- 		Peter Xu, Patrick Taylor
+ 		Peter Xu px2117, Patrick Taylor pat2138
  */
 
 #include <linux/module.h>
@@ -62,6 +62,12 @@ static void write_digit(int digit, u8 segments)
 */
 static void write_center(unsigned int x, unsigned int y)
 {
+	/*
+		x and y are both 32-bit integers, but we only need 10 bits each to represent
+		all of the pixels on the screen. Do the bitshift x << 10 to make room for y
+		In the peripheral VGA_LED.sv, we use only the first 20-bits of writeData to
+		get the coordinates of the circle center.
+	*/
 	iowrite32((x << 10 | y), dev.virtbase);
 }
 
@@ -129,8 +135,8 @@ static struct miscdevice vga_led_misc_device = {
  */
 static int __init vga_led_probe(struct platform_device *pdev)
 {
-	static unsigned char welcome_message[VGA_LED_DIGITS] = {
-		0x3E, 0x7D, 0x77, 0x08, 0x38, 0x79, 0x5E, 0x00};
+	//	static unsigned char welcome_message[VGA_LED_DIGITS] = {
+	//  	0x3E, 0x7D, 0x77, 0x08, 0x38, 0x79, 0x5E, 0x00};
 	int i, ret;
 
 	/* Register ourselves as a misc device: creates /dev/vga_led */
@@ -163,7 +169,7 @@ static int __init vga_led_probe(struct platform_device *pdev)
 		write_digit(i, welcome_message[i]);
 	*/
 	
-	write_center(250, 240);
+	write_center(CENTER_X, CENTER_Y);
 	return 0;
 
 out_release_mem_region:

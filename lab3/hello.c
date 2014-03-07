@@ -5,7 +5,7 @@
  * Stephen A. Edwards
  * Columbia University
  
- 		Peter Xu, Patrick Taylor
+ 		Peter Xu px2117, Patrick Taylor pat2138
  */
 
 #include <stdio.h>
@@ -25,9 +25,6 @@ typedef int bool;
 
 #define true 1
 #define false 0
-
-#define CENTER_X	320
-#define CENTER_Y	240
 
 #define TOP_BND		40
 #define BOT_BND		440

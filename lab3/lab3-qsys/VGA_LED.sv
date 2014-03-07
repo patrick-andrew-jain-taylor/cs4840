@@ -3,6 +3,8 @@
  *
  * Stephen A. Edwards
  * Columbia University
+ 
+  		Peter Xu px2117, Patrick Taylor pat2138
  */
 
 module VGA_LED(input logic        clk,
@@ -28,31 +30,8 @@ module VGA_LED(input logic        clk,
      if (reset) begin
 	cx <= 10'd320;
 	cy <= 10'd240;
-	  /*
-	hex0 <= 8'b01100110; // 4
-	hex1 <= 8'b01111111; // 8
-	hex2 <= 8'b01100110; // 4
-	hex3 <= 8'b10111111; // 0
-	hex4 <= 8'b00111000; // L
-	hex5 <= 8'b01110111; // A
-	hex6 <= 8'b01111100; // b
-	hex7 <= 8'b01001111; // 3
-		*/
      end else if (chipselect && write) begin
 	cx <= writedata[19:10];
 	cy <= writedata[9:0];
 		end
-		 /*
-		 case (address)
-	 3'h0 : hex0 <= writedata;
-	 3'h1 : hex1 <= writedata;
-	 3'h2 : hex2 <= writedata;
-	 3'h3 : hex3 <= writedata;
-	 3'h4 : hex4 <= writedata;
-	 3'h5 : hex5 <= writedata;
-	 3'h6 : hex6 <= writedata;
-	 3'h7 : hex7 <= writedata;
-		
-       endcase
-	   */    
 endmodule

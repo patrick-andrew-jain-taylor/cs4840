@@ -2,6 +2,8 @@
  * Seven-segment LED emulator
  *
  * Stephen A. Edwards, Columbia University
+ 
+  		Peter Xu px2117, Patrick Taylor pat2138
  */
 
 module VGA_LED_Emulator (

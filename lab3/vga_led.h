@@ -1,9 +1,13 @@
+//Peter Xu px2117, Patrick Taylor pat2138
 #ifndef _VGA_LED_H
 #define _VGA_LED_H
 
 #include <linux/ioctl.h>
 
 #define VGA_LED_DIGITS 8
+
+#define CENTER_X	320
+#define CENTER_Y	240
 
 typedef struct {
   unsigned char digit;    /* 0, 1, .. , VGA_LED_DIGITS - 1 */
