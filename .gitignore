@@ -1,0 +1,21 @@
+#Top level files in lab3 directory
+*.tar.gz
+*.rpt
+*.bsf
+*.cmp
+*.csv
+*.lck
+*.bak
+*.qsys
+*.html
+*.qpf
+*.sopcinfo
+*.qsf
+*.tcl
+
+#lab3 subdirectories
+lab3/lab3-qsys/db/*
+lab3/lab3-qsys/hc_output/*
+lab3/lab3-qsys/hps_isw_handoff/*
+lab3/lab3-qsys/incremental_db/*
+lab3/lab3-qsys/lab3/*
