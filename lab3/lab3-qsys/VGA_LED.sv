@@ -7,7 +7,7 @@
 
 module VGA_LED(input logic        clk,
 	       input logic 	  reset,
-	       input logic [7:0]  writedata,
+	       input logic [31:0]  writedata,
 	       input logic 	  write,
 	       input 		  chipselect,
 	       input logic [2:0]  address,
@@ -16,14 +16,19 @@ module VGA_LED(input logic        clk,
 	       output logic 	  VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_n,
 	       output logic 	  VGA_SYNC_n);
 
-	 
+	/*
    logic [7:0] 			  hex0, hex1, hex2, hex3,
 				  hex4, hex5, hex6, hex7;
-
+	*/
+	logic [9:0]			cx, cy;
+	
    VGA_LED_Emulator led_emulator(.clk50(clk), .*);
 
    always_ff @(posedge clk)
      if (reset) begin
+	cx <= 10'd320;
+	cy <= 10'd240;
+	  /*
 	hex0 <= 8'b01100110; // 4
 	hex1 <= 8'b01111111; // 8
 	hex2 <= 8'b01100110; // 4
@@ -32,8 +37,13 @@ module VGA_LED(input logic        clk,
 	hex5 <= 8'b01110111; // A
 	hex6 <= 8'b01111100; // b
 	hex7 <= 8'b01001111; // 3
-     end else if (chipselect && write)
-       case (address)
+		*/
+     end else if (chipselect && write) begin
+	cx <= writedata[19:10];
+	cy <= writedata[9:0];
+		end
+		 /*
+		 case (address)
 	 3'h0 : hex0 <= writedata;
 	 3'h1 : hex1 <= writedata;
 	 3'h2 : hex2 <= writedata;
@@ -42,6 +52,7 @@ module VGA_LED(input logic        clk,
 	 3'h5 : hex5 <= writedata;
 	 3'h6 : hex6 <= writedata;
 	 3'h7 : hex7 <= writedata;
+		
        endcase
-	       
+	   */    
 endmodule
