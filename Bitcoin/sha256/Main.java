@@ -26,21 +26,19 @@ public class Main {
 		System.out.println(Integer.toBinaryString( (x >>> 8) | (x << (32 - 8)) ));
 		*/
 		
-		String M = "abc";
-		System.out.println(padRight(M, 3) + "|");
+		String M = "011000010110001001100011";
+		String Mtmp = M;
+		//Pad the message with "1" and 0's
+		Mtmp += 1; //M must be the binary representation of the message
 		
-		M = M + 1; //M must be the binary value of the message
-		int d = 448 - (M.length() % 512);
+		int d = 448 - (Mtmp.length() % 512);
 		
 		if(d < 0)
 			d = 512 + d; 
-		//448 - 400 = 48,
-		//448 - 500 = -52, (512-500)+448=460 = 512 - 52
-		
-		//Pad the message with "1" and 0's
-		for(int i=0; i < d; i++) {
-			
-		}
+
+		Mtmp = padRight(Mtmp, d);
+		Mtmp += lenTo64bit((long)M.length());
+		System.out.println(Mtmp + "| " + Mtmp.length());
 	}
 	
 	public int ch(int x, int y, int z) {
@@ -86,6 +84,31 @@ public class Main {
 		while(i < len) {
 			tmp[i] = '0';
 			i++;
+		}
+		
+		return new String(tmp);
+	}
+	
+	public static String lenTo64bit(long length) {
+		String s = Long.toBinaryString(length);
+		int slen = s.length();
+		if(slen >= 64)
+			return s;
+		
+		char[] tmp = new char[64];
+		int d = 64 - slen;
+		int i = 0;
+		
+		while(i < d) {
+			tmp[i] = '0';
+			i++;
+		}
+		
+		int j=0;
+		while(i < 64) {
+			tmp[i] = s.charAt(j);
+			i++;
+			j++;
 		}
 		
 		return new String(tmp);
