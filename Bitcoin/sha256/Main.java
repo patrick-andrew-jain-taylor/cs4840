@@ -4,6 +4,10 @@
  *
  */
 import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class Main {
 	
@@ -31,21 +35,56 @@ public class Main {
 	};
 	
 	public static void main(String args[]) {
-		/*
-		int x = 0xF0F0FF0F;
-		int y = 0x01010A01;
-		System.out.println(Integer.toBinaryString(x << 2));
-		System.out.println(Integer.toBinaryString(x ^ y));
-		System.out.println(Integer.toBinaryString(x >> 2));
-		System.out.println(Integer.toBinaryString(x >>> 2));
-		System.out.println(Integer.toBinaryString(Integer.rotateRight(x, 8)));
-		System.out.println(Integer.toBinaryString( (x >>> 8) | (x << (32 - 8)) ));
-		*/
-		
-		//System.out.println((int) Long.parseLong("11000000000000000000000000011001", 2));
-		
-		String msg = "011000010110001001100011";
+		try {
+			BufferedReader br = new BufferedReader(new FileReader("test.txt"));
+			String msg = "";
+			String pmsg = "";
+			String digest = "";
+			boolean fail = false;
+			
+			while( (msg=br.readLine()) != null) {
+				digest = br.readLine();
+				pmsg = procMsg(msg);
+				String hash = sha256(pmsg);
+				
+				String test = "";
+				for(int i=0; i < pmsg.length(); i+=8) {
+					test += (pmsg.substring(i, i+8) + " ");
+				}
+				
+				System.out.println(msg + "\n" + test + "\n" + hash + "\n" + digest + "|" + digest.length() + "\n");
+				
+				if(!hash.equals(digest))
+					fail = true;
+			}
+			
+			if(fail)
+				System.out.println("SHA256 test failed");
+			else
+				System.out.println("SHA256 test passed");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static String procMsg(String msg) {
+		String tmp = "";
+		String tmp2;
+		for(int i=0; i < msg.length(); i++) {
+			tmp2 = Integer.toBinaryString((int) msg.charAt(i));
+			if(tmp2.length() < 8)
+				tmp2 = padLeft(tmp2, 8-tmp2.length());
+			
+			tmp += tmp2;
+		}
+
+		return tmp;
+	}
+	
+	public static String sha256(String msg) {
 		String msgTmp = msg;
+		
 		//Pad the message with "1" and 0's until multiple of 512 bits
 		msgTmp += 1; //M must be the binary representation of the message
 		
@@ -87,7 +126,12 @@ public class Main {
 			String[] W = new String[64];
 			W = getExpBlocks(M.get(i));
 			
-
+			/*
+			System.out.println(M.toString());
+			for(int x=0; x<W.length;x++) {
+				System.out.println(x+") "+W[x]);
+			}
+			
 			System.out.println("init) " + 
 					Integer.toHexString(a) + " " +
 					Integer.toHexString(b) + " " +
@@ -97,6 +141,7 @@ public class Main {
 					Integer.toHexString(f) + " " +
 					Integer.toHexString(g) + " " +
 					Integer.toHexString(h));
+			*/
 			
 			for(int j=0; j < 64; j++) {
 				int tmp1 = h + SIG1(e) + ch(e,f,g) + K[j] + (int) Long.parseLong(W[j], 2);
@@ -110,6 +155,7 @@ public class Main {
 				b = a;
 				a = tmp1 + tmp2;
 				
+				/*
 				System.out.println(j + ") " + 
 						Integer.toHexString(a) + " " +
 						Integer.toHexString(b) + " " +
@@ -119,6 +165,7 @@ public class Main {
 						Integer.toHexString(f) + " " +
 						Integer.toHexString(g) + " " +
 						Integer.toHexString(h));
+				*/
 			}
 			
 			h0 += a;
@@ -132,26 +179,25 @@ public class Main {
 		}
 		
 		// Digest
-		String digest = Integer.toHexString(h0) +
-				Integer.toHexString(h1) +
-				Integer.toHexString(h2) +
-				Integer.toHexString(h3) +
-				Integer.toHexString(h4) +
-				Integer.toHexString(h5) +
-				Integer.toHexString(h6) +
-				Integer.toHexString(h7);
+		String digest = 
+				String.format("%08x", h0) +
+				String.format("%08x", h1) +
+				String.format("%08x", h2) +
+				String.format("%08x", h3) +
+				String.format("%08x", h4) +
+				String.format("%08x", h5) +
+				String.format("%08x", h6) +
+				String.format("%08x", h7);
 		
-		
-		System.out.println(digest);
-		System.out.println(digest.length());
+		return digest;
 	}
 	
 	public static int ch(int x, int y, int z) {
-		return ((x | y) ^ (~x | z));
+		return ((x & y) ^ (~x & z));
 	}
 	
 	public static int maj(int x, int y, int z) {
-		return ((x|y)^(x|z)^(y|z));
+		return ((x & y)^(x & z)^(y & z));
 	}
 	
 	public static int SIG0(int x) {
@@ -167,6 +213,14 @@ public class Main {
 	}
 	
 	public static int sig1(int x) {
+		/*
+		System.out.println("\nsig1");
+		System.out.println(Integer.toBinaryString(x));
+		System.out.println(Integer.toBinaryString(sn(x,17)));
+		System.out.println(Integer.toBinaryString(sn(x,19)));
+		System.out.println(Integer.toBinaryString(x >>> 10));
+		System.out.println(Integer.toBinaryString(( sn(x,17)^sn(x,19)^(x >>> 10))));
+		*/
 		return ( sn(x,17)^sn(x,19)^(x >>> 10));
 	}
 	
@@ -189,6 +243,27 @@ public class Main {
 		while(i < len) {
 			tmp[i] = '0';
 			i++;
+		}
+		
+		return new String(tmp);
+	}
+	
+	public static String padLeft(String s, int n) {
+		int slen = s.length();
+		int len = slen + n;
+		char [] tmp = new char[len];
+		int i = 0;
+		
+		while(i < (len - slen)) {
+			tmp[i] = '0';
+			i++;
+		}
+		
+		int j=0;
+		while(i < len) {
+			tmp[i] = s.charAt(j);
+			i++;
+			j++;
 		}
 		
 		return new String(tmp);
@@ -235,17 +310,38 @@ public class Main {
 	public static String[] getExpBlocks(String mi) {
 		// Each entry in W is a 32-bit binary string
 		String[] W = new String[64];
-		
+		int k=0;
 		for(int j=0; j < 16; j++) {
-			W[j] = mi.substring(j, j+32);
+			W[j] = mi.substring(k, k+32);
+			k+=32;
 		}
+		
+		/*
+		for(int i=0; i< 16; i++) {
+			System.out.println(i+")"+W[i]);
+		}
+		*/
 		
 		for(int j=16; j < 64; j++) {
 			int t1 = sig1((int)Long.parseLong(W[j-2], 2));
 			int t2 = (int) Long.parseLong(W[j-7],2);
 			int t3 = sig0((int) Long.parseLong(W[j-15], 2));
 			int t4 = (int) Long.parseLong(W[j-16], 2);
+			
+			/*
+			String st1, st2, st3, st4;
+			st1 = Integer.toBinaryString(t1);
+			st2 = Integer.toBinaryString(t2);
+			st3 = Integer.toBinaryString(t3);
+			st4 = Integer.toBinaryString(t4);
+			
+			System.out.print(st1+ "|" + st1.length()+ ","+
+								st2 + "|" + st2.length()+","+
+								st3 + "|" + st3.length()+","+
+								st4 + "|" + st4.length()+",");
+			*/
 			W[j] =  Integer.toBinaryString(t1 + t2 + t3 + t4);
+			//System.out.println(W[j]+"|"+W[j].length());
 		}
 		
 		return W;
