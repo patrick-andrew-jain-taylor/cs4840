@@ -1,6 +1,6 @@
 /*
 *
-* Copyright (c) 2011 fpgaminer@bitcoin-mining.com
+* Copyright (c) 2011-2012 fpgaminer@bitcoin-mining.com
 *
 *
 *
@@ -22,7 +22,7 @@
 
 `timescale 1ns/1ps
 
-module fpgaminer_top (osc_clk);
+module fpgaminer_top (osc_clk, midstate_buf_in, data_in);
 
 	// The LOOP_LOG2 parameter determines how unrolled the SHA-256
 	// calculations are. For example, a setting of 0 will completely
@@ -39,6 +39,7 @@ module fpgaminer_top (osc_clk);
 `else
 	parameter LOOP_LOG2 = 0;
 `endif
+  
 
 	// No need to adjust these parameters
 	localparam [5:0] LOOP = (6'd1 << LOOP_LOG2);
@@ -49,8 +50,9 @@ module fpgaminer_top (osc_clk);
 	localparam [31:0] GOLDEN_NONCE_OFFSET = (32'd1 << (7 - LOOP_LOG2)) + 32'd1;
 
 	input osc_clk;
-
-
+	input [255:0] midstate_buf_in;
+	input [511:0] data_in;
+  
 	//// 
 	reg [255:0] state = 0;
 	reg [511:0] data = 0;
@@ -64,6 +66,7 @@ module fpgaminer_top (osc_clk);
 	`else
 		assign hash_clk = osc_clk;
 	`endif
+	
 
 
 	//// Hashers
@@ -83,7 +86,7 @@ module fpgaminer_top (osc_clk);
 		.clk(hash_clk),
 		.feedback(feedback),
 		.cnt(cnt),
-		.rx_state(256'h5be0cd191f83d9ab9b05688c510e527fa54ff53a3c6ef372bb67ae856a09e667),
+		.rx_state(256'h5be0cd191f83d9ab9b05688c510e527fa54ff53a3c6ef372bb67ae856a09e667),	//H7,...,H0
 		.rx_input({256'h0000010000000000000000000000000000000000000000000000000080000000, hash}),
 		.tx_hash(hash2)
 	);
@@ -104,7 +107,7 @@ module fpgaminer_top (osc_clk);
 	
 	`ifndef SIM
 		virtual_wire # (.PROBE_WIDTH(32), .WIDTH(0), .INSTANCE_ID("GNON")) golden_nonce_vw_blk (.probe(golden_nonce), .source());
-		virtual_wire # (.PROBE_WIDTH(32), .WIDTH(0), .INSTANCE_ID("NONC")) nonce_vw_blk (.probe(nonce), .source());
+		//virtual_wire # (.PROBE_WIDTH(32), .WIDTH(0), .INSTANCE_ID("NONC")) nonce_vw_blk (.probe(nonce), .source());
 	`endif
 
 
@@ -134,12 +137,14 @@ module fpgaminer_top (osc_clk);
 	always @ (posedge hash_clk)
 	begin
 		`ifdef SIM
-			//midstate_buf <= 256'h2b3f81261b3cfd001db436cfd4c8f3f9c7450c9a0d049bee71cba0ea2619c0b5;
-			//data_buf <= 256'h00000000000000000000000080000000_00000000_39f3001b6b7b8d4dc14bfc31;
-			//nonce <= 30411740;
+			midstate_buf <= 256'h2b3f81261b3cfd001db436cfd4c8f3f9c7450c9a0d049bee71cba0ea2619c0b5;
+			data_buf <= 256'h00000000000000000000000080000000_00000000_39f3001b6b7b8d4dc14bfc31;
+			nonce <= 30411740;
 		`else
-			midstate_buf <= midstate_vw;
-			data_buf <= data2_vw;
+			//midstate_buf <= midstate_vw;
+			//data_buf <= data2_vw;
+			midstate_buf <= midstate_buf_in; //256'h228ea4732a3c9ba860c009cda7252b9161a5e75ec8c582a5f106abb3af41f790;
+			data_buf <= data_in; //512'h000002800000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000002194261a9395e64dbed17115;
 		`endif
 
 		cnt <= cnt_next;
