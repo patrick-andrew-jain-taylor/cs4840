@@ -9,6 +9,7 @@ module test_fpgaminer_top(input [255:0] header_midstate_buf,
 	input [511:0] header_data,
 	input [31:0] header_nonce,
 	input newinput,
+	input clk,
 	
 	output reg [255:0] midstate_buf_out,
 	output reg [511:0] data_out,
@@ -19,12 +20,13 @@ module test_fpgaminer_top(input [255:0] header_midstate_buf,
   parameter LOAD = 1'b0;
   reg state; 
   
-	reg clk = 1'b0;
+	//reg clk = 1'b0;
 
 	fpgaminer_top # (.LOOP_LOG2(0)) uut (clk, midstate_buf_out, data_out);
 
-	reg [31:0] cycle = 32'd0;
-
+	//reg [31:0] cycle = 32'd0;
+  
+  /*
 	initial begin
 		clk = 0;
 		#100
@@ -40,6 +42,7 @@ module test_fpgaminer_top(input [255:0] header_midstate_buf,
 			#5 clk = 1; #5 clk = 0;
 		end
 	end
+	*/
 
 
 	always @ (posedge clk)
@@ -82,7 +85,7 @@ module test_fpgaminer_top(input [255:0] header_midstate_buf,
   	   default: state <= IDLE;
 		endcase
 		*/
-		cycle <= cycle + 32'd1;
+		//cycle <= cycle + 32'd1;
 	end
 	
 	always @ (posedge newinput) begin
