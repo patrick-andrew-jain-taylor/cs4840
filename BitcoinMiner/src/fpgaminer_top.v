@@ -22,7 +22,8 @@
 
 `timescale 1ns/1ps
 
-module fpgaminer_top (osc_clk, midstate_buf_in, data_in);
+//module fpgaminer_top (osc_clk, midstate_buf_in, data_in);
+module fpgaminer_top (osc_clk);
 
 	// The LOOP_LOG2 parameter determines how unrolled the SHA-256
 	// calculations are. For example, a setting of 0 will completely
@@ -50,8 +51,8 @@ module fpgaminer_top (osc_clk, midstate_buf_in, data_in);
 	localparam [31:0] GOLDEN_NONCE_OFFSET = (32'd1 << (7 - LOOP_LOG2)) + 32'd1;
 
 	input osc_clk;
-	input [255:0] midstate_buf_in;
-	input [511:0] data_in;
+	//input [255:0] midstate_buf_in;
+	//input [511:0] data_in;
   
 	//// 
 	reg [255:0] state = 0;
@@ -143,8 +144,8 @@ module fpgaminer_top (osc_clk, midstate_buf_in, data_in);
 		`else
 			//midstate_buf <= midstate_vw;
 			//data_buf <= data2_vw;
-			midstate_buf <= midstate_buf_in; //256'h228ea4732a3c9ba860c009cda7252b9161a5e75ec8c582a5f106abb3af41f790;
-			data_buf <= data_in; //512'h000002800000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000002194261a9395e64dbed17115;
+			//midstate_buf <= midstate_buf_in; //256'h228ea4732a3c9ba860c009cda7252b9161a5e75ec8c582a5f106abb3af41f790;
+			//data_buf <= data_in; //512'h000002800000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000002194261a9395e64dbed17115;
 		`endif
 
 		cnt <= cnt_next;

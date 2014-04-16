@@ -11,19 +11,21 @@ module test_fpgaminer_top(input [255:0] header_midstate_buf,
 	input newinput,
 	input clk,
 	
-	output reg [255:0] midstate_buf_out,
-	output reg [511:0] data_out,
+	//output reg [255:0] midstate_buf_out,
+	//output reg [511:0] data_out,
 	output reg [31:0] golden_nonce,
 	output reg golden_nonce_ticket);
 
+/*
   parameter IDLE = 1'b1;
   parameter LOAD = 1'b0;
   reg state; 
-  
+*/
 	//reg clk = 1'b0;
 
-	fpgaminer_top # (.LOOP_LOG2(0)) uut (clk, midstate_buf_out, data_out);
-
+	//fpgaminer_top # (.LOOP_LOG2(4)) uut (clk, midstate_buf_out, data_out);
+  fpgaminer_top # (.LOOP_LOG2(4)) uut (clk);
+  
 	//reg [31:0] cycle = 32'd0;
   
   /*
@@ -89,8 +91,10 @@ module test_fpgaminer_top(input [255:0] header_midstate_buf,
 	end
 	
 	always @ (posedge newinput) begin
-      midstate_buf_out = header_midstate_buf;
-      data_out = header_data;
+      //midstate_buf_out = header_midstate_buf;
+      //data_out = header_data;
+      uut.midstate_buf = header_midstate_buf;
+      uut.data_buf = header_data;
       uut.nonce = header_nonce;	        	  
   end
 

@@ -18,8 +18,11 @@ add wave -noupdate golden_nonce_ticket
 add wave -noupdate clk
 
 #fpgaminer_top
-add wave -noupdate -radix hexadecimal /test_fpgaminer_top/uut/midstate_buf_in
-add wave -noupdate -radix hexadecimal /test_fpgaminer_top/uut/data_in
+#add wave -noupdate -radix hexadecimal /test_fpgaminer_top/uut/midstate_buf_in
+#add wave -noupdate -radix hexadecimal /test_fpgaminer_top/uut/data_in
+add wave -noupdate -radix hexadecimal /test_fpgaminer_top/uut/midstate_buf
+add wave -noupdate -radix hexadecimal /test_fpgaminer_top/uut/data
+
 add wave -noupdate -radix hexadecimal /test_fpgaminer_top/uut/nonce
 add wave -noupdate -radix hexadecimal /test_fpgaminer_top/uut/state
 add wave -noupdate -radix hexadecimal /test_fpgaminer_top/uut/data 
@@ -49,4 +52,7 @@ force header_nonce 16#0e33327a @13000000
 force newinput 1 @13100000
 force newinput 0 @13500000
 
-run 20000000
+####loop_log = 0
+#run 20000000
+####loop_log = 4
+run 80000000
