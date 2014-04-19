@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "curl/curl.h"
-#include "jansson.h"
+#include "jansson/jansson.h"
 #include <pthread.h>
 
 #define BUFFER_SIZE  (256 * 1024)  /* 256 KB */
