@@ -23,7 +23,7 @@
 `timescale 1ns/1ps
 
 //module fpgaminer_top (osc_clk, midstate_buf_in, data_in);
-module fpgaminer_top (osc_clk);
+module fpgaminer_top (clk, header_data_input, loading);
 
 	// The LOOP_LOG2 parameter determines how unrolled the SHA-256
 	// calculations are. For example, a setting of 0 will completely
@@ -38,7 +38,7 @@ module fpgaminer_top (osc_clk);
 `ifdef CONFIG_LOOP_LOG2
 	parameter LOOP_LOG2 = `CONFIG_LOOP_LOG2;
 `else
-	parameter LOOP_LOG2 = 0;
+	parameter LOOP_LOG2 = 5;
 `endif
   
 
@@ -50,10 +50,21 @@ module fpgaminer_top (osc_clk);
 	// 66 respectively).
 	localparam [31:0] GOLDEN_NONCE_OFFSET = (32'd1 << (7 - LOOP_LOG2)) + 32'd1;
 
-	input osc_clk;
-	//input [255:0] midstate_buf_in;
-	//input [511:0] data_in;
-  
+	input clk;
+	input [767:0] header_data_input;
+	input loading;
+	//input rst;
+	//input write;
+	
+	
+	reg [32:0] header_data_output;
+  /*
+  reg [767:0] header_buffer;
+	reg [1:0] load_cycle = 2'b0;
+	reg loading = 1'b0;
+	reg load_done = 1'b0;
+	*/
+	
 	//// 
 	reg [255:0] state = 0;
 	reg [511:0] data = 0;
@@ -62,13 +73,15 @@ module fpgaminer_top (osc_clk);
 
 	//// PLL
 	wire hash_clk;
-	`ifndef SIM
-		main_pll pll_blk (osc_clk, hash_clk);
-	`else
-		assign hash_clk = osc_clk;
-	`endif
 	
-
+	/*
+	`ifndef SIM
+		main_pll pll_blk (clk, hash_clk);
+	`else
+		assign hash_clk = clk;
+	`endif
+*/
+  assign hash_clk = clk;
 
 	//// Hashers
 	wire [255:0] hash, hash2;
@@ -97,20 +110,27 @@ module fpgaminer_top (osc_clk);
 	reg [255:0] midstate_buf = 0, data_buf = 0;
 	wire [255:0] midstate_vw, data2_vw;
 
+/*
 	`ifndef SIM
 		virtual_wire # (.PROBE_WIDTH(0), .WIDTH(256), .INSTANCE_ID("STAT")) midstate_vw_blk(.probe(), .source(midstate_vw));
 		virtual_wire # (.PROBE_WIDTH(0), .WIDTH(256), .INSTANCE_ID("DAT2")) data2_vw_blk(.probe(), .source(data2_vw));
 	`endif
-
+*/
 
 	//// Virtual Wire Output
 	reg [31:0] golden_nonce = 0;
 	
+/*
 	`ifndef SIM
 		virtual_wire # (.PROBE_WIDTH(32), .WIDTH(0), .INSTANCE_ID("GNON")) golden_nonce_vw_blk (.probe(golden_nonce), .source());
 		//virtual_wire # (.PROBE_WIDTH(32), .WIDTH(0), .INSTANCE_ID("NONC")) nonce_vw_blk (.probe(nonce), .source());
 	`endif
-
+*/
+  
+  reg start = 1'b0;
+  always @ (negedge loading) begin
+    assign start = 1'b1;
+  end
 
 	//// Control Unit
 	reg is_golden_ticket = 1'b0;
@@ -138,7 +158,7 @@ module fpgaminer_top (osc_clk);
 	always @ (posedge hash_clk)
 	begin
 		`ifdef SIM
-			midstate_buf <= 256'h2b3f81261b3cfd001db436cfd4c8f3f9c7450c9a0d049bee71cba0ea2619c0b5;
+			midstate_buf <= 256'h2b3f81261b3cfd001db436cfdsim:/fpgaminer_top/midstate_buf4c8f3f9c7450c9a0d049bee71cba0ea2619c0b5;
 			data_buf <= 256'h00000000000000000000000080000000_00000000_39f3001b6b7b8d4dc14bfc31;
 			nonce <= 30411740;
 		`else
@@ -146,8 +166,16 @@ module fpgaminer_top (osc_clk);
 			//data_buf <= data2_vw;
 			//midstate_buf <= midstate_buf_in; //256'h228ea4732a3c9ba860c009cda7252b9161a5e75ec8c582a5f106abb3af41f790;
 			//data_buf <= data_in; //512'h000002800000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000002194261a9395e64dbed17115;
+			if(start == 1'b1) begin 
+  			   midstate_buf <= header_data_input[255:0];
+			   data_buf <= header_data_input[767:256];
+			 end
 		`endif
-
+    
+    if(is_golden_ticket)
+      header_data_output[32] = is_golden_ticket;
+    header_data_output[31:0] = golden_nonce;
+    
 		cnt <= cnt_next;
 		feedback <= feedback_next;
 		feedback_d1 <= feedback;
@@ -155,9 +183,51 @@ module fpgaminer_top (osc_clk);
 		// Give new data to the hasher
 		state <= midstate_buf;
 		data <= {384'h000002800000000000000000000000000000000000000000000000000000000000000000000000000000000080000000, nonce_next, data_buf[95:0]};
-		nonce <= nonce_next;
+	  if(start == 1'b0)
+	     nonce <= nonce_next;
+	  else begin
+	     nonce <= header_data_input[383:352];
+	     assign start = 1'b0;
+	  end
+	   	
+		
 
-
+		
+		/*
+		if(write && !loading) begin
+			loading <= 1'b1;
+		end
+		
+		if(loading) begin
+			if(load_cycle == 2'b0) begin
+				header_buffer[255:0] <= header_data_input;
+				load_cycle <= 2'b1;
+				loading <= 1'b0;
+				//header_buffer[767:384] <= header_data_input;
+				//load_done <= 1'b1;
+			end
+			else if(load_cycle == 2'b1) begin
+				header_buffer[511:256] <= header_data_input;
+				load_cycle <= 2'b10;
+				loading <= 1'b0;
+			end
+			else if(load_cycle == 2'b10) begin
+				header_buffer[767:511] <= header_data_input;
+				//load_cycle <= 2'b00;
+				load_done <= 1'b1;
+			end
+		end
+		
+		if(load_done) begin
+			midstate_buf <= header_buffer[255:0];
+			data_buf <= header_buffer[767:256];
+			nonce <= header_buffer[383:352];
+			load_done <= 1'b0;
+			loading <= 1'b0;
+			load_cycle <= 2'b0;
+		end 
+		*/
+		
 		// Check to see if the last hash generated is valid.
 		is_golden_ticket <= (hash2[255:224] == 32'h00000000) && !feedback_d1;
 		if(is_golden_ticket)
@@ -175,6 +245,10 @@ module fpgaminer_top (osc_clk);
 			$display ("nonce: %8x\nhash2: %64x\n", nonce, hash2);
 `endif
 	end
+	
+	 
+	 
+	  
 
 endmodule
 
