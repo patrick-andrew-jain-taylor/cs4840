@@ -23,7 +23,7 @@
 `timescale 1ns/1ps
 
 //module fpgaminer_top (osc_clk, midstate_buf_in, data_in);
-module fpgaminer_top (clk, header_data_input, loading);
+module fpgaminer_top (clk, header_data_input, load_done, nonce_out);
 
 	// The LOOP_LOG2 parameter determines how unrolled the SHA-256
 	// calculations are. For example, a setting of 0 will completely
@@ -52,14 +52,16 @@ module fpgaminer_top (clk, header_data_input, loading);
 
 	input clk;
 	input [767:0] header_data_input;
-	input loading;
+	input load_done;
+	output [32:0] nonce_out;
+	reg [32:0] nonce_out;
 	//input rst;
 	//input write;
 	
 	
-	reg [32:0] header_data_output;
-  /*
-  reg [767:0] header_buffer;
+	/*reg [32:0] header_data_output;
+	
+	reg [767:0] header_buffer;
 	reg [1:0] load_cycle = 2'b0;
 	reg loading = 1'b0;
 	reg load_done = 1'b0;
@@ -128,9 +130,7 @@ module fpgaminer_top (clk, header_data_input, loading);
 */
   
   reg start = 1'b0;
-  always @ (negedge loading) begin
-    assign start = 1'b1;
-  end
+  
 
 	//// Control Unit
 	reg is_golden_ticket = 1'b0;
@@ -154,6 +154,7 @@ module fpgaminer_top (clk, header_data_input, loading);
 		reset ? 32'd0 :
 		feedback_next ? nonce : (nonce + 32'd1);
 
+	//assign nonce_out = header_data_output;
 	
 	always @ (posedge hash_clk)
 	begin
@@ -166,6 +167,10 @@ module fpgaminer_top (clk, header_data_input, loading);
 			//data_buf <= data2_vw;
 			//midstate_buf <= midstate_buf_in; //256'h228ea4732a3c9ba860c009cda7252b9161a5e75ec8c582a5f106abb3af41f790;
 			//data_buf <= data_in; //512'h000002800000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000002194261a9395e64dbed17115;
+			
+			if(load_done)
+				start <= 1'b1;
+			
 			if(start == 1'b1) begin 
   			   midstate_buf <= header_data_input[255:0];
 			   data_buf <= header_data_input[767:256];
@@ -173,12 +178,13 @@ module fpgaminer_top (clk, header_data_input, loading);
 		`endif
     
     if(is_golden_ticket)
-      header_data_output[32] = is_golden_ticket;
-    header_data_output[31:0] = golden_nonce;
-    
+      nonce_out[32] <= is_golden_ticket;
+    nonce_out[31:0] <= golden_nonce;
+		
 		cnt <= cnt_next;
 		feedback <= feedback_next;
 		feedback_d1 <= feedback;
+		
 
 		// Give new data to the hasher
 		state <= midstate_buf;
@@ -187,11 +193,9 @@ module fpgaminer_top (clk, header_data_input, loading);
 	     nonce <= nonce_next;
 	  else begin
 	     nonce <= header_data_input[383:352];
-	     assign start = 1'b0;
+	     start <= 1'b0;
 	  end
 	   	
-		
-
 		
 		/*
 		if(write && !loading) begin
