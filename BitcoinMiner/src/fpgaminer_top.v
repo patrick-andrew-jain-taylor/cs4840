@@ -54,7 +54,7 @@ module fpgaminer_top (clk, header_data_input, load_done, nonce_out);
 	input [767:0] header_data_input;
 	input load_done;
 	output [32:0] nonce_out;
-	reg [32:0] nonce_out;
+	reg [32:0] nonce_out = 32'h00000000;
 	
 	//// 
 	reg [255:0] state = 0;
@@ -166,10 +166,11 @@ module fpgaminer_top (clk, header_data_input, load_done, nonce_out);
 			end
 		`endif
     
-    if(is_golden_ticket)
+    if(is_golden_ticket) begin
       nonce_out[32] <= is_golden_ticket;
+    end
     nonce_out[31:0] <= golden_nonce;
-		
+
 		cnt <= cnt_next;
 		feedback <= feedback_next;
 		feedback_d1 <= feedback;
