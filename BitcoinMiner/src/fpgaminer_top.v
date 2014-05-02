@@ -55,17 +55,6 @@ module fpgaminer_top (clk, header_data_input, load_done, nonce_out);
 	input load_done;
 	output [32:0] nonce_out;
 	reg [32:0] nonce_out;
-	//input rst;
-	//input write;
-	
-	
-	/*reg [32:0] header_data_output;
-	
-	reg [767:0] header_buffer;
-	reg [1:0] load_cycle = 2'b0;
-	reg loading = 1'b0;
-	reg load_done = 1'b0;
-	*/
 	
 	//// 
 	reg [255:0] state = 0;
@@ -153,8 +142,6 @@ module fpgaminer_top (clk, header_data_input, load_done, nonce_out);
 	assign nonce_next =
 		reset ? 32'd0 :
 		feedback_next ? nonce : (nonce + 32'd1);
-
-	//assign nonce_out = header_data_output;
 	
 	always @ (posedge hash_clk)
 	begin
@@ -173,8 +160,10 @@ module fpgaminer_top (clk, header_data_input, load_done, nonce_out);
 			
 			if(start == 1'b1) begin 
   			   midstate_buf <= header_data_input[255:0];
-			   data_buf <= header_data_input[767:256];
-			 end
+			   	 data_buf <= header_data_input[767:256];
+			   	 is_golden_ticket <= 1'b0;
+			   	 golden_nonce <= 32'b0;
+			end
 		`endif
     
     if(is_golden_ticket)
@@ -195,42 +184,6 @@ module fpgaminer_top (clk, header_data_input, load_done, nonce_out);
 	     nonce <= header_data_input[383:352];
 	     start <= 1'b0;
 	  end
-	   	
-		
-		/*
-		if(write && !loading) begin
-			loading <= 1'b1;
-		end
-		
-		if(loading) begin
-			if(load_cycle == 2'b0) begin
-				header_buffer[255:0] <= header_data_input;
-				load_cycle <= 2'b1;
-				loading <= 1'b0;
-				//header_buffer[767:384] <= header_data_input;
-				//load_done <= 1'b1;
-			end
-			else if(load_cycle == 2'b1) begin
-				header_buffer[511:256] <= header_data_input;
-				load_cycle <= 2'b10;
-				loading <= 1'b0;
-			end
-			else if(load_cycle == 2'b10) begin
-				header_buffer[767:511] <= header_data_input;
-				//load_cycle <= 2'b00;
-				load_done <= 1'b1;
-			end
-		end
-		
-		if(load_done) begin
-			midstate_buf <= header_buffer[255:0];
-			data_buf <= header_buffer[767:256];
-			nonce <= header_buffer[383:352];
-			load_done <= 1'b0;
-			loading <= 1'b0;
-			load_cycle <= 2'b0;
-		end 
-		*/
 		
 		// Check to see if the last hash generated is valid.
 		is_golden_ticket <= (hash2[255:224] == 32'h00000000) && !feedback_d1;
@@ -250,9 +203,5 @@ module fpgaminer_top (clk, header_data_input, load_done, nonce_out);
 `endif
 	end
 	
-	 
-	 
-	  
-
 endmodule
 
