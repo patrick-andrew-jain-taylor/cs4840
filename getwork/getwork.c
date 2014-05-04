@@ -6,6 +6,8 @@
 #include <jansson.h>
 #include <pthread.h>
 
+#include "miner_driver.h"
+
 #define BUFFER_SIZE  (256 * 1024)  /* 256 KB */
  // curl --user halffast.worker1:WyhZfpFS --data-binary '{ "id":"curltest", "method":"getwork", "params":[] }' -H 'content-type: text/plain;' http://localhost:8332/lp -i
 
@@ -26,6 +28,38 @@ const char *usrpwd = "halffast.worker1:WyhZfpFS";
 const char *header = "content-type: text/plain;";
 const char *pool_url = "http://localhost:8332/";
 const char *lp_pool_url = "http://localhost:8332/lp";
+
+int miner_fd;
+
+/* Read and print the segment values */
+void print_segment_info() {
+  vga_led_arg_t vla;
+  int i;
+
+  for (i = 0 ; i < DATA_SIZE-4 ; i++) {
+    vla.digit = i;
+    if (ioctl(vga_led_fd, VGA_LED_READ_DIGIT, &vla)) {
+      perror("ioctl(VGA_LED_READ_DIGIT) failed");
+      return;
+    }
+    printf("%02x ", vla.segments);
+  }
+  printf("\n");
+}
+
+void write_segments(const uint8_t *segs)
+{
+  vga_led_arg_t vla;
+  int i;
+  for (i = 0 ; i < DATA_SIZE-4; i++) {
+    vla.digit = i;
+    vla.segments = segs[95-i];
+    if (ioctl(vga_led_fd, VGA_LED_WRITE_DIGIT, &vla)) {
+      perror("ioctl(VGA_LED_WRITE_DIGIT) failed");
+      return;
+    }
+  }
+}
 
 static void die(const char *message)
 {
@@ -294,8 +328,21 @@ void *proof_of_work(void *arg){
 int
 main(int argc, char**argv){
 
+char *data_test = "000000029b39574cb8a5c25e94cdd844f7d3b942384af65fb264d5a000000000000000008adb353c754fe07c40341728c5efe6e3782d994e0e3ebcb4879106de94dd1db0533b2c461900db9900000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000080020000" ;
+char *midstate_test = "49bc9ada38ba6b43814a3275edfa09b796be70080d5c641d32b80776aef13f78";
+
+   uint8_t *data_bytes = hexStringToBytes(endian_flip_32_bit_chunks(data_test));
+   uint8_t *midstate_bytes = hexStringToBytes(endian_flip_32_bit_chunks(midstate_test));
+	
+    uint8_t header_buffer[sizeof(data_bytes)+sizeof(midstate_bytes)];
+    memcpy(header_buffer, midstate_bytes, sizeof(midstate_bytes));
+    memcpy(header_buffer+sizeof(midstate_bytes), data_bytes, sizeof(data_bytes)); 
+
+    write_segments(header_buffer);
+    print_segment_info();
+
     //getwork from network
-    pthread_t ack_thread;
+   /* pthread_t ack_thread;
     char *init_resp;
     json_t *json_resp;
     json_error_t json_error;
@@ -364,7 +411,20 @@ main(int argc, char**argv){
     // data must be back through the net work as little endien
     // data must be converted from string representation to bits
     
-    data_write((char *)json_string_value(data));
+    //data_write((char *)json_string_value(data));
+    
+//uint8_t *data_bytes = hexStringToBytes(endian_flip_32_bit_chunks(json_string_value(data)));
+//uint8_t *midstate_bytes = hexStringToBytes(endian_flip_32_bit_chunks(json_string_value(midstate)));
+	
+        uint8_t *data_bytes = hexStringToBytes(endian_flip_32_bit_chunks(data_test));
+	uint8_t *midstate_bytes = hexStringToBytes(endian_flip_32_bit_chunks(midstate_test));
+	
+    uint8_t header_buffer[sizeof(data_bytes)+sizeof(midstate_bytes)];
+    memcpy(header_buffer, midstate_bytes, sizeof(midstate_bytes));
+    memcpy(header_buffer+sizeof(midstate_bytes), data_bytes, sizeof(data_bytes)); 
+
+    write_segments(header_buffer);
+    print_segment_info();
 
     //used for error printing
     printf("%s\n", init_resp); //for testing
@@ -377,7 +437,7 @@ main(int argc, char**argv){
     // eg. {"method":"getwork","params":["0000000141a0e898cf6554fd344a37b2917a6c7a6561c20733b09c8000009eef00000000d559e21 882efc6f76bbfad4cd13639f4067cd904fe4ecc3351dc9cc5358f1cd54db84e7a1b00b5acba97b6 0400000080000000000000000000000000000000000000000000000000000000000000000000000 0000000000080020000"],"id":1}
     // data must be back through the net work as little endien
 
-    pthread_create(&ack_thread, NULL, proof_of_work, NULL);
+   // pthread_create(&ack_thread, NULL, proof_of_work, NULL);
 
     //loop for long polling
     while(1){
@@ -428,13 +488,21 @@ main(int argc, char**argv){
         // printf("%s\n", endian_flip_32_bit_chunks((char *)json_string_value(data)));
 
         // !! pass data down to miners
-        data_write((char *)json_string_value(data));
+        uint8_t *data_bytes = hexStringToBytes(endian_flip_32_bit_chunks(json_string_value(data)));
+        uint8_t *midstate_bytes = hexStringToBytes(endian_flip_32_bit_chunks(json_string_value(midstate)));
+	
+        uint8_t header_buffer[sizeof(data_bytes)+sizeof(midstate_bytes)];
+        memcpy(header_buffer, midstate_bytes, sizeof(midstate_bytes));
+        memcpy(header_buffer+sizeof(midstate_bytes), data_bytes, sizeof(data_bytes)); 
+
+        write_segments(header_buffer);
+	print_segment_info();
         
         printf("%s\n", init_resp); //for testing
 
         json_decref(json_resp);
         free(init_resp);
     }
-
+*/
     return 0;
 }
