@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-
+#include <sys/ioctl.h>
 #include <curl/curl.h>
 #include <jansson.h>
 #include <pthread.h>
@@ -38,7 +38,7 @@ void print_segment_info() {
 
   for (i = 0 ; i < DATA_SIZE-4 ; i++) {
     vla.digit = i;
-    if (ioctl(vga_led_fd, VGA_LED_READ_DIGIT, &vla)) {
+    if (ioctl(miner_fd, VGA_LED_READ_DIGIT, &vla)) {
       perror("ioctl(VGA_LED_READ_DIGIT) failed");
       return;
     }
@@ -54,7 +54,7 @@ void write_segments(const uint8_t *segs)
   for (i = 0 ; i < DATA_SIZE-4; i++) {
     vla.digit = i;
     vla.segments = segs[95-i];
-    if (ioctl(vga_led_fd, VGA_LED_WRITE_DIGIT, &vla)) {
+    if (ioctl(miner_fd, VGA_LED_WRITE_DIGIT, &vla)) {
       perror("ioctl(VGA_LED_WRITE_DIGIT) failed");
       return;
     }
@@ -191,7 +191,7 @@ static void swap(char *a, char *b){
 static char *endian_flip_32_bit_chunks(char *input)
 {
     //32 bits = 4*4 bytes = 4*4 chars
-    printf("%lu\n", strlen(input));
+    //printf("%lu\n", strlen(input));
     for (int i = 0; i < strlen(input); i += 8){   
         swap(&input[i], &input[i+6]);
         swap(&input[i+1], &input[i+7]);
