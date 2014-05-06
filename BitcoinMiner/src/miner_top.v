@@ -35,7 +35,6 @@ module miner_top(
 	wire [32:0] nonce_out;
 	
 	// Parallelization
-	/*
 	parameter mctr = 2;							//number of miners
 	parameter NONCE_IDX = 383;
 	reg [31:0] nonce_ram[0:mctr-1];
@@ -46,7 +45,7 @@ module miner_top(
 	
 	integer i;
 	
-	
+	/*
   genvar w;
   generate
      for(w = 0; w < mctr; w =w+1) begin : b1
@@ -56,7 +55,7 @@ module miner_top(
      		myBuf ibuf(nonce_out_a, nonce_out_q);
      end
   endgenerate
-	
+	*/
 	
 	// Instantiate mctr miners
 	genvar j;
@@ -67,21 +66,23 @@ module miner_top(
 			fpgaminer_top miner (clk, {header_buffer[767:NONCE_IDX], nonce_ram[j],header_buffer[351:0]}, load_done, m_nonce_out); //, b1[j].nonce_out_a);
 		end
 	endgenerate
-	*/
 	
 	fpgaminer_top miner (clk, header_buffer, load_done, nonce_out);
 	
 	always @(posedge clk) begin
-		/*
-		integer k;	
-		result_ram[0] = MINERS[0].m_nonce_out; //b1[k].nonce_out_q;
-		nonce_ram[0] <= header_buffer[NONCE_IDX:NONCE_IDX-31];
 		
-		result_ram[1] = MINERS[1].m_nonce_out; //b1[k].nonce_out_q;
-		nonce_ram[1] <= header_buffer[NONCE_IDX:NONCE_IDX-31] + range;
-		// Connect the miners and their nonce outputs to a block of result registers
+		// Connect the miners and their nonce outputs to a block of result registers		
+		result_ram[0] = MINERS[0].m_nonce_out;
+		result_ram[1] = MINERS[1].m_nonce_out;
+
+
+		nonce_ram[0] <= header_buffer[NONCE_IDX:NONCE_IDX-31];
+		nonce_ram[1] <= header_buffer[NONCE_IDX:NONCE_IDX-31] + range;		
 		
 
+
+		/*
+		integer k;	
 		for(k = 1; k < mctr; k=k+1) begin
 			result_ram[k] = MINERS[k].m_nonce_out; //b1[k].nonce_out_q;
 			nonce_ram[k] <= header_buffer[NONCE_IDX:NONCE_IDX-31] + k*range;
@@ -93,7 +94,14 @@ module miner_top(
 			load_done <= 1'b0;
 			start <= 1'b0;
 			header_buffer <= 768'd0; //Reset all including the nonce and golden nonce
+			
 			gold_nonce <= 33'd0;
+			result_ram[0] <= 33'd0;
+			result_ram[1] <= 33'd0;
+			
+			nonce_ram[0] <= 32'd0;
+			nonce_ram[1] <= 32'd0;
+			
 			read_gold_nonce = 1'b1;
 			stop <= 1'b0;
 		end
@@ -336,29 +344,48 @@ module miner_top(
 								readdata[0] <= read_gold_nonce;
 								readdata[1] <= nonce_out[32];
 							end
-				/*
+				
 				//nonce_ram
 				7'd104: readdata <= nonce_ram[0][`IDX8(0)];
 				7'd105: readdata <= nonce_ram[0][`IDX8(1)];
 				7'd106: readdata <= nonce_ram[0][`IDX8(2)];
 				7'd107: readdata <= nonce_ram[0][`IDX8(3)];
-				7'd108: begin
-								readdata[7:1] <= 6'b000000;
-			  				readdata[0] <= nonce_ram[0][32];
-							end
 							
 				7'd109: readdata <= nonce_ram[1][`IDX8(0)];
 				7'd110: readdata <= nonce_ram[1][`IDX8(1)];
 				7'd111: readdata <= nonce_ram[1][`IDX8(2)];
 				7'd112: readdata <= nonce_ram[1][`IDX8(3)];
-				7'd113: begin
+				
+				//result_ram
+				7'd113: readdata <= result_ram[0][`IDX8(0)];
+				7'd114: readdata <= result_ram[0][`IDX8(1)];
+				7'd115: readdata <= result_ram[0][`IDX8(2)];
+				7'd116: readdata <= result_ram[0][`IDX8(3)];
+				7'd117: begin
 								readdata[7:1] <= 6'b000000;
-			  				readdata[0] <= nonce_ram[1][32];
+			  				readdata[0] <= result_ram[0][32];
 							end
-				*/
+							
+				7'd118: readdata <= result_ram[1][`IDX8(0)];
+				7'd119: readdata <= result_ram[1][`IDX8(1)];
+				7'd120: readdata <= result_ram[1][`IDX8(2)];
+				7'd121: readdata <= result_ram[1][`IDX8(3)];
+				7'd122: begin
+								readdata[7:1] <= 6'b000000;
+			  				readdata[0] <= result_ram[1][32];
+							end							
 			endcase
 			
 			/*
+				7'd96: readdata <= result_ram[`IDX8(0)];
+				7'd97: readdata <= result_ram[`IDX8(1)];
+				7'd98: readdata <= result_ram[`IDX8(2)];
+				7'd99: readdata <= result_ram[`IDX8(3)];
+				7'd100: begin
+								readdata[7:1] <= 6'b000000;
+			  				readdata[0] <= result_ram[32];
+							end
+			
 			integer addr, k;
 			
 			for(k=0; k < mctr*5; k=k+5) begin
@@ -374,17 +401,31 @@ module miner_top(
 		else begin
 			load_done <= 1'b0;
 			
-			if(read_gold_nonce && nonce_out[32] && !loading) begin		
+			ticket <= result_ram[0][32] || result_ram[1][32];
+			
+			if(read_gold_nonce && ticket && !loading) begin		
 				gold_nonce[31:0] <= nonce_out[31:0]; //fix this
 				gold_nonce[32] <= nonce_out[32];
+				
+				/*
+				result_ram[0][31:0] <= MINERS[0].m_nonce_out[31:0];
+				result_ram[1][31:0] <= MINERS[1].m_nonce_out[31:0];
+				*/
+				
+				
 				read_gold_nonce = 1'b0;
 				stop <= 1'b1;
 			end
-			else
+			else begin
 				gold_nonce <= 33'd0;
 			
+				result_ram[0] <= 33'd0;
+				result_ram[1] <= 33'd0;
+			end
 			//Parallel
 			/*
+			
+			
 			integer k;
 			for (k=0; k < mctr; k=k+1) begin
 				result_ram[k] <= nonce_out[`IDX32(k)];

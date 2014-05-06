@@ -16,6 +16,7 @@ for {set i 99} {$i > 95} {incr i -1} {
 	append nonce " $tmp"
 }
 
+
 #set n_out ""
 #for {set i 107} {$i > 103} {incr i -1} {
 #	set tmp [master_read_8 $m [expr $bitcoin_miner + $i] 1]
@@ -35,6 +36,43 @@ puts "nonce: $nonce"
 #puts "n_out: $n_out"
 puts "ticket: $ticket"
 puts "nstate <nonce_out32><read_gold_nonce>: $nstate" 
+
+
+puts "\n"
+
+# Read nonces from the nonce_ram
+set nonceram0 ""
+for {set i 107} {$i > 103} {incr i -1} {
+	set tmp [master_read_8 $m [expr $bitcoin_miner + $i] 1]
+	append nonceram0 " $tmp"
+}
+
+set nonceram1 ""
+for {set i 112} {$i > 108} {incr i -1} {
+	set tmp [master_read_8 $m [expr $bitcoin_miner + $i] 1]
+	append nonceram1 " $tmp"
+}
+
+# Read the results from result_ram
+set resultram0 ""
+for {set i 117} {$i > 112} {incr i -1} {
+	set tmp [master_read_8 $m [expr $bitcoin_miner + $i] 1]
+	append resultram0 " $tmp"
+}
+
+set resultram1 ""
+for {set i 122} {$i > 117} {incr i -1} {
+	set tmp [master_read_8 $m [expr $bitcoin_miner + $i] 1]
+	append resultram1 " $tmp"
+}
+
+puts "Nonce Ram"
+puts "0: $nonceram0"
+puts "1: $nonceram1"
+
+puts "Results Ram: <ticket><golden nonce>"
+puts "0: $resultram0"
+puts "1: $resultram1"
 
 close_service master $m
 puts "Closed master"
