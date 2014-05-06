@@ -2,11 +2,12 @@
 #include <stdint.h>
 #include <string.h>
 #include <sys/ioctl.h>
-#include <curl/curl.h>
-#include <jansson.h>
+#include "curl/curl.h"
+#include "jansson/jansson.h"
 #include <pthread.h>
-
-#include "vga_led.h"
+#include <unistd.h>
+#include <fcntl.h>
+#include "miner_driver.h"
 
 #define BUFFER_SIZE  (256 * 1024)  /* 256 KB */
  // curl --user halffast.worker1:WyhZfpFS --data-binary '{ "id":"curltest", "method":"getwork", "params":[] }' -H 'content-type: text/plain;' http://localhost:8332/lp -i
@@ -36,7 +37,7 @@ void print_segment_info() {
   vga_led_arg_t vla;
   int i;
 
-  for (i = 0 ; i < VGA_LED_DIGITS ; i++) {
+  for (i = 0 ; i < DATA_SIZE ; i++) {
     vla.digit = i;
     if (ioctl(miner_fd, VGA_LED_READ_DIGIT, &vla)) {
       perror("ioctl(VGA_LED_READ_DIGIT) failed");
@@ -51,7 +52,7 @@ void write_segments(const uint8_t *segs)
 {
   vga_led_arg_t vla;
   int i;
-  for (i = 0 ; i < VGA_LED_DIGITS; i++) {
+  for (i = 0 ; i < DATA_SIZE; i++) {
     vla.digit = i;
     vla.segments = segs[95-i];
     if (ioctl(miner_fd, VGA_LED_WRITE_DIGIT, &vla)) {
@@ -264,7 +265,7 @@ void *proof_of_work(void *arg){
             
             json_resp = json_loads(req, 0, &json_error);
             
-            if(!json_resp){0
+            if(!json_resp){
                 json_die(json_error.line, json_error.text);
             }
 
@@ -313,7 +314,7 @@ void *proof_of_work(void *arg){
 // ... // 0000000000080020000"],"id":1}
 
 void
-json_data_error(json_int_t json_data_error_num){
+json_data_error(json_int_t json_data_error_num, char * init_resp){
     //these are json-rpc errors
     if(json_data_error_num != 0){
         switch(json_data_error_num){
@@ -350,7 +351,7 @@ request_work(char * url){
 
     data_error = json_object_get(json_resp, "error");
 
-    json_data_error(json_integer_value(data_error));
+    json_data_error(json_integer_value(data_error), init_resp);
 
     //{"error": null, 
     //  "id": "curltest",
@@ -385,11 +386,11 @@ request_work(char * url){
     
     //data_write((char *)json_string_value(data));
     
-//uint8_t *data_bytes = hexStringToBytes(endian_flip_32_bit_chunks(json_string_value(data)));
-//uint8_t *midstate_bytes = hexStringToBytes(endian_flip_32_bit_chunks(json_string_value(midstate)));
+uint8_t *data_bytes = hexStringToBytes(endian_flip_32_bit_chunks(json_string_value(data)));
+uint8_t *midstate_bytes = hexStringToBytes(endian_flip_32_bit_chunks(json_string_value(midstate)));
 	
-    uint8_t *data_bytes = hexStringToBytes(endian_flip_32_bit_chunks(data_test));
-    uint8_t *midstate_bytes = hexStringToBytes(endian_flip_32_bit_chunks(midstate_test));
+//    uint8_t *data_bytes = hexStringToBytes(endian_flip_32_bit_chunks(data_test));
+//    uint8_t *midstate_bytes = hexStringToBytes(endian_flip_32_bit_chunks(midstate_test));
 	
     uint8_t header_buffer[sizeof(data_bytes)+sizeof(midstate_bytes)];
     memcpy(header_buffer, midstate_bytes, sizeof(midstate_bytes));
@@ -418,11 +419,11 @@ request_work(char * url){
 int
 main(int argc, char**argv){
 
-   vga_led_arg_t vla;
+   //vga_led_arg_t vla;
 
    static const char filename[] = "/dev/vga_led";
 
-   if((vga_led_fd = open(filename, O_RDWR)) == -1){
+   if((miner_fd = open(filename, O_RDWR)) == -1){
       fprintf(stderr, "could not open %s\n", filename);
       return -1;
    }
@@ -433,7 +434,7 @@ main(int argc, char**argv){
 
     write_segments(message);
 
-    usleep(70000);
+    sleep(70);
 
     printf("printing seg info \n" );
 
