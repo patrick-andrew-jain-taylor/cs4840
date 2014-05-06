@@ -35,6 +35,7 @@ module miner_top(
 	wire [32:0] nonce_out;
 	
 	// Parallelization
+	/*
 	parameter mctr = 2;							//number of miners
 	parameter NONCE_IDX = 383;
 	reg [31:0] nonce_ram[0:mctr-1];
@@ -45,7 +46,7 @@ module miner_top(
 	
 	integer i;
 	
-	/*
+	
   genvar w;
   generate
      for(w = 0; w < mctr; w =w+1) begin : b1
@@ -55,7 +56,7 @@ module miner_top(
      		myBuf ibuf(nonce_out_a, nonce_out_q);
      end
   endgenerate
-	*/
+	
 	
 	// Instantiate mctr miners
 	genvar j;
@@ -66,10 +67,12 @@ module miner_top(
 			fpgaminer_top miner (clk, {header_buffer[767:NONCE_IDX], nonce_ram[j],header_buffer[351:0]}, load_done, m_nonce_out); //, b1[j].nonce_out_a);
 		end
 	endgenerate
+	*/
 	
 	fpgaminer_top miner (clk, header_buffer, load_done, nonce_out);
 	
 	always @(posedge clk) begin
+		/*
 		integer k;	
 		result_ram[0] = MINERS[0].m_nonce_out; //b1[k].nonce_out_q;
 		nonce_ram[0] <= header_buffer[NONCE_IDX:NONCE_IDX-31];
@@ -78,7 +81,7 @@ module miner_top(
 		nonce_ram[1] <= header_buffer[NONCE_IDX:NONCE_IDX-31] + range;
 		// Connect the miners and their nonce outputs to a block of result registers
 		
-		/*
+
 		for(k = 1; k < mctr; k=k+1) begin
 			result_ram[k] = MINERS[k].m_nonce_out; //b1[k].nonce_out_q;
 			nonce_ram[k] <= header_buffer[NONCE_IDX:NONCE_IDX-31] + k*range;
@@ -333,7 +336,7 @@ module miner_top(
 								readdata[0] <= read_gold_nonce;
 								readdata[1] <= nonce_out[32];
 							end
-				
+				/*
 				//nonce_ram
 				7'd104: readdata <= nonce_ram[0][`IDX8(0)];
 				7'd105: readdata <= nonce_ram[0][`IDX8(1)];
@@ -352,6 +355,7 @@ module miner_top(
 								readdata[7:1] <= 6'b000000;
 			  				readdata[0] <= nonce_ram[1][32];
 							end
+				*/
 			endcase
 			
 			/*
