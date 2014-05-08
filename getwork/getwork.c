@@ -6,7 +6,7 @@
 #include <jansson.h>
 #include <pthread.h>
 
-#include "miner_driver.h"
+#include "vga_led.h"
 
 #define BUFFER_SIZE  (256 * 1024)  /* 256 KB */
  // curl --user halffast.worker1:WyhZfpFS --data-binary '{ "id":"curltest", "method":"getwork", "params":[] }' -H 'content-type: text/plain;' http://localhost:8332/lp -i
@@ -36,7 +36,7 @@ void print_segment_info() {
   vga_led_arg_t vla;
   int i;
 
-  for (i = 0 ; i < DATA_SIZE-4 ; i++) {
+  for (i = 0 ; i < VGA_LED_DIGITS ; i++) {
     vla.digit = i;
     if (ioctl(miner_fd, VGA_LED_READ_DIGIT, &vla)) {
       perror("ioctl(VGA_LED_READ_DIGIT) failed");
@@ -51,7 +51,7 @@ void write_segments(const uint8_t *segs)
 {
   vga_led_arg_t vla;
   int i;
-  for (i = 0 ; i < DATA_SIZE-4; i++) {
+  for (i = 0 ; i < VGA_LED_DIGITS; i++) {
     vla.digit = i;
     vla.segments = segs[95-i];
     if (ioctl(miner_fd, VGA_LED_WRITE_DIGIT, &vla)) {
@@ -244,18 +244,6 @@ char *bytesToStringHex(unsigned char *bin)
     return *result;
 }
 
-void data_write (char *data){
-    FILE *f = fopen("block-data", "w");
-    if(f == NULL){
-        die("File open block failed.");
-    }
-    // printf("%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", 
-        // data_to_write[0], data_to_write[1], data_to_write[2], data_to_write[3],
-        // data_to_write[4], data_to_write[5], data_to_write[6], data_to_write[7]); 
-    fwrite(hexStringToBytes(endian_flip_32_bit_chunks(data)), 1, 128, f);
-    fclose(f);
-}
-
 void *proof_of_work(void *arg){
     uint8_t flag = 0;
     FILE *flag_p, *params_p;
@@ -276,7 +264,7 @@ void *proof_of_work(void *arg){
             
             json_resp = json_loads(req, 0, &json_error);
             
-            if(!json_resp){
+            if(!json_resp){0
                 json_die(json_error.line, json_error.text);
             }
 
@@ -324,47 +312,9 @@ void *proof_of_work(void *arg){
 // "params":["0000000141a0e898cf6554fd344a37b2917a6c7a6561c20733b09c8000009eef00000000d559e21 882efc6f76bbfad4cd13639f4067cd904fe4ecc3351dc9cc5358f1cd54db84e7a1b00b5acba97b6 0400000080000000000000000000000000000000000000000000000000000000000000000000000
 // ... // 0000000000080020000"],"id":1}
 
-
-int
-main(int argc, char**argv){
-
-char *data_test = "000000029b39574cb8a5c25e94cdd844f7d3b942384af65fb264d5a000000000000000008adb353c754fe07c40341728c5efe6e3782d994e0e3ebcb4879106de94dd1db0533b2c461900db9900000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000080020000" ;
-char *midstate_test = "49bc9ada38ba6b43814a3275edfa09b796be70080d5c641d32b80776aef13f78";
-
-   uint8_t *data_bytes = hexStringToBytes(endian_flip_32_bit_chunks(data_test));
-   uint8_t *midstate_bytes = hexStringToBytes(endian_flip_32_bit_chunks(midstate_test));
-	
-    uint8_t header_buffer[sizeof(data_bytes)+sizeof(midstate_bytes)];
-    memcpy(header_buffer, midstate_bytes, sizeof(midstate_bytes));
-    memcpy(header_buffer+sizeof(midstate_bytes), data_bytes, sizeof(data_bytes)); 
-
-    write_segments(header_buffer);
-    print_segment_info();
-
-    //getwork from network
-   /* pthread_t ack_thread;
-    char *init_resp;
-    json_t *json_resp;
-    json_error_t json_error;
-
-    json_int_t json_data_error_num;
-    json_t *data_error = NULL, *result = NULL, *data = NULL, *target = NULL, *midstate = NULL;
-
-    init_resp = request(pool_url, req);
-    if(!init_resp){
-        die("initial repsonse failed check args");
-    }
-
-    json_resp = json_loads(init_resp, 0, &json_error);
-
-    if(!json_resp){
-        json_die(json_error.line, json_error.text);
-    }
-
-    data_error = json_object_get(json_resp, "error");
-
+void
+json_data_error(json_int_t json_data_error_num){
     //these are json-rpc errors
-    json_data_error_num = json_integer_value(data_error);
     if(json_data_error_num != 0){
         switch(json_data_error_num){
             case 20 : printf("Other/Unknown\n");            
@@ -378,6 +328,29 @@ char *midstate_test = "49bc9ada38ba6b43814a3275edfa09b796be70080d5c641d32b80776a
         fprintf(stderr, "%s\n", init_resp);
         die("error in result from initial response");
     }
+}
+
+void
+request_work(char * url){
+    char *init_resp;
+    json_t *json_resp;
+    json_error_t json_error;
+    json_t *data_error = NULL, *result = NULL, *data = NULL, *target = NULL, *midstate = NULL;
+
+    init_resp = request(url, req);
+    if(!init_resp){
+        die("initial repsonse failed check args");
+    }
+
+    json_resp = json_loads(init_resp, 0, &json_error);
+
+    if(!json_resp){
+        json_die(json_error.line, json_error.text);
+    }
+
+    data_error = json_object_get(json_resp, "error");
+
+    json_data_error(json_integer_value(data_error));
 
     //{"error": null, 
     //  "id": "curltest",
@@ -404,7 +377,6 @@ char *midstate_test = "49bc9ada38ba6b43814a3275edfa09b796be70080d5c641d32b80776a
         die("initial repsonse format error");
     }
 
-
     //prefered that data is sent as big endien
     // data is in little endien hex format
     // printf("%s\n", json_string_value(data));
@@ -416,8 +388,8 @@ char *midstate_test = "49bc9ada38ba6b43814a3275edfa09b796be70080d5c641d32b80776a
 //uint8_t *data_bytes = hexStringToBytes(endian_flip_32_bit_chunks(json_string_value(data)));
 //uint8_t *midstate_bytes = hexStringToBytes(endian_flip_32_bit_chunks(json_string_value(midstate)));
 	
-        uint8_t *data_bytes = hexStringToBytes(endian_flip_32_bit_chunks(data_test));
-	uint8_t *midstate_bytes = hexStringToBytes(endian_flip_32_bit_chunks(midstate_test));
+    uint8_t *data_bytes = hexStringToBytes(endian_flip_32_bit_chunks(data_test));
+    uint8_t *midstate_bytes = hexStringToBytes(endian_flip_32_bit_chunks(midstate_test));
 	
     uint8_t header_buffer[sizeof(data_bytes)+sizeof(midstate_bytes)];
     memcpy(header_buffer, midstate_bytes, sizeof(midstate_bytes));
@@ -437,72 +409,61 @@ char *midstate_test = "49bc9ada38ba6b43814a3275edfa09b796be70080d5c641d32b80776a
     // eg. {"method":"getwork","params":["0000000141a0e898cf6554fd344a37b2917a6c7a6561c20733b09c8000009eef00000000d559e21 882efc6f76bbfad4cd13639f4067cd904fe4ecc3351dc9cc5358f1cd54db84e7a1b00b5acba97b6 0400000080000000000000000000000000000000000000000000000000000000000000000000000 0000000000080020000"],"id":1}
     // data must be back through the net work as little endien
 
-   // pthread_create(&ack_thread, NULL, proof_of_work, NULL);
+}
+
+// /usr/src/linux/scripts/dtc/dtc -O dtb -o socfpga.dtb socfpga.dts
+// route add default gw 192.168.1.1
+
+
+int
+main(int argc, char**argv){
+
+   vga_led_arg_t vla;
+
+   static const char filename[] = "/dev/vga_led";
+
+   if((vga_led_fd = open(filename, O_RDWR)) == -1){
+      fprintf(stderr, "could not open %s\n", filename);
+      return -1;
+   }
+
+    static unsigned char message[8] = {0XDE,0XAD,0XDE,0XAD,0XBE,0XEF,0XBE,0XEF};
+
+    printf("writing segments\n");
+
+    write_segments(message);
+
+    usleep(70000);
+
+    printf("printing seg info \n" );
+
+    print_segment_info();
+
+/*
+char *data_test = "000000029b39574cb8a5c25e94cdd844f7d3b942384af65fb264d5a000000000000000008adb353c754fe07c40341728c5efe6e3782d994e0e3ebcb4879106de94dd1db0533b2c461900db99000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000800200000\0" ;
+
+char *midstate_test = "49bc9ada38ba6b43814a3275edfa09b796be70080d5c641d32b80776a
+ef13f78\0";
+
+    
+    uint8_t *data_bytes = hexStringToBytes(data_test);
+    uint8_t *midstate_bytes = hexStringToBytes(midstate_test);
+
+    uint8_t header_buffer[sizeof(data_bytes)+sizeof(midstate_bytes)];
+    memcpy(header_buffer, midstate_bytes, sizeof(midstate_bytes));
+    memcpy(header_buffer+sizeof(midstate_bytes), data_bytes, sizeof(data_bytes));
+*/
+
+    //getwork from network
+    
+    //pthread_t ack_thread;
+    //request_work(pool_url);
+    //pthread_create(&ack_thread, NULL, proof_of_work, NULL);
 
     //loop for long polling
-    while(1){
-        init_resp = request(lp_pool_url, req); //this will hang with long pool until fresh data is ready for work :)
-        
-        if(!init_resp){
-            die("initial repsonse failed check args");
-        }
-
-        json_resp = json_loads(init_resp, 0, &json_error);
-
-        if(!json_resp){
-            json_die(json_error.line, json_error.text);
-        }
-
-        data_error = json_object_get(json_resp, "error");
-
-        //these are json-rpc errors
-        json_data_error_num = json_integer_value(data_error);
-        if(json_data_error_num != 0){
-            switch(json_data_error_num){
-                case 20 : printf("Other/Unknown\n");            
-                case 21 : printf("Job not found (=stale)\n");            
-                case 22 : printf("Duplicate share\n");            
-                case 23 : printf("Low difficulty share\n");            
-                case 24 : printf("Unauthorized worker\n");            
-                case 25 : printf("Not subscribed\n");
-                default : printf("strange error google resuslts\n");            
-            }
-            fprintf(stderr, "%s\n", init_resp);
-            die("error in result from initial response");
-        }
-
-        result = json_object_get(json_resp, "result");
-        data = json_object_get(result, "data");
-        target = json_object_get(result, "target");
-        midstate = json_object_get(result, "midstate");
-
-        if(!result || !data || !target || !midstate){
-            fprintf(stderr, "%s\n", init_resp);
-            die("initial repsonse format error");
-        }
-
-        // !! prep work
-        //prefered that data is sent as big endien
-        // data is in little endien hex format
-        // printf("%s\n", json_string_value(data));
-        // printf("%s\n", endian_flip_32_bit_chunks((char *)json_string_value(data)));
-
-        // !! pass data down to miners
-        uint8_t *data_bytes = hexStringToBytes(endian_flip_32_bit_chunks(json_string_value(data)));
-        uint8_t *midstate_bytes = hexStringToBytes(endian_flip_32_bit_chunks(json_string_value(midstate)));
+    //while(1){
 	
-        uint8_t header_buffer[sizeof(data_bytes)+sizeof(midstate_bytes)];
-        memcpy(header_buffer, midstate_bytes, sizeof(midstate_bytes));
-        memcpy(header_buffer+sizeof(midstate_bytes), data_bytes, sizeof(data_bytes)); 
+    //	request_work(lp_pool_url);        
 
-        write_segments(header_buffer);
-	print_segment_info();
-        
-        printf("%s\n", init_resp); //for testing
-
-        json_decref(json_resp);
-        free(init_resp);
-    }
-*/
-    return 0;
+//    return 0;
 }
