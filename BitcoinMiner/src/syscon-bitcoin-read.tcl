@@ -1,3 +1,9 @@
+proc hex2bin {hex} {
+	set h [string range $hex 2 end]
+  binary scan [binary format H* $h] B* bin
+  return $bin
+}
+
 set bitcoin_miner 0x0
 
 set m [lindex [get_service_paths master] 0]
@@ -29,12 +35,12 @@ set nstate [master_read_8 $m [expr $bitcoin_miner + 103] 1]
 
 puts "Output:"
 puts "header_buffer:\n$hb"
-puts "<stop><start>: $start"
-puts "load state: $loading"
+puts "<stop><start>: [hex2bin $start]"
+puts "<loading><loaddone>: [hex2bin $loading]"
 puts "nonce: $nonce"
 #puts "n_out: $n_out"
-puts "ticket: $ticket"
-puts "nstate <nonce_out32><read_gold_nonce>: $nstate" 
+puts "<ticket><gold_nonce32>: [hex2bin $ticket]"
+puts "nstate <MINERS1nout32><MINERS0nout32><nonce_out32><read_gold_nonce>: [hex2bin $nstate]" 
 
 close_service master $m
 puts "Closed master"
