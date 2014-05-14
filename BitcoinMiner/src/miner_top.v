@@ -23,10 +23,10 @@ module miner_top(
 	reg stop = 1'b0;
 	reg read_gold_nonce = 1'b1;
 	reg ticket = 1'b0;
-	
+			
 	// Parallelization
-	parameter mctr = 4;					//number of miners
-	localparam range = 32'd10000000;	//the range of nonce values for each miner
+	parameter mctr = 4;								//number of miners
+	localparam range = 32'd1000000000;	//the range of nonce values for each miner
 	
 	// Wires to connect miner outputs to the result ram
 	wire [32:0] nonce_out_a0;
@@ -34,7 +34,7 @@ module miner_top(
 	wire [32:0] nonce_out_a2;	
 	wire [32:0] nonce_out_a3;
 	
-	// Ram for holding the nonce input and nonce result for each miner
+	// Ram for holding the nonce input and nonce results for each miner
 	reg [31:0] nonce_ram[0:3];
 	reg [32:0] result_ram[0:3];
 
@@ -296,10 +296,11 @@ module miner_top(
 								readdata[1] <= stop;
 								readdata[7:2] <= 5'b000000;
 							end
-				//read_gold_nonce, nonce_out[32]
+				//read_gold_nonce
 				8'd103: begin
 								readdata[0] <= read_gold_nonce;
 							end
+				
 				//nonce_ram
 				8'd104: readdata <= nonce_ram[0][`IDX8(0)];
 				8'd105: readdata <= nonce_ram[0][`IDX8(1)];
@@ -362,7 +363,7 @@ module miner_top(
 			endcase
 		end
 		else if(stop) begin
-				// Stop state. When a miner has solved the nonce
+				// Stop state. When a miner has solved the block and nonce
 				
 				// Continuously loads the nonce output of the miners to result ram
 				result_ram[0][31:0] <= nonce_out_a0[`IDX32(0)];
@@ -384,8 +385,8 @@ module miner_top(
 							 nonce_out_a2[32] ||
 							 nonce_out_a3[32];
 			
-			// Condition to enter Stop state.
-			if(read_gold_nonce && ticket && !loading) begin	
+			// Condition to enter Stop state
+			if(read_gold_nonce && ticket && !loading) begin					
 				result_ram[0][31:0] <= nonce_out_a0[`IDX32(0)]; 
 				result_ram[1][31:0] <= nonce_out_a1[`IDX32(0)];
 				result_ram[2][31:0] <= nonce_out_a2[`IDX32(0)];
@@ -399,7 +400,7 @@ module miner_top(
 				read_gold_nonce = 1'b0;
 				stop <= 1'b1;
 			end
-			else begin		
+			else begin
 				result_ram[0] <= 33'd0;
 				result_ram[1] <= 33'd0;
 				result_ram[2] <= 33'd0;

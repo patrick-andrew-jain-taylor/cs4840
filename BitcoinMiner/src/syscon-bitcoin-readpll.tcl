@@ -1,5 +1,3 @@
-# Reads the registers of the parallelized miner
-
 proc hex2bin {hex} {
 	set h [string range $hex 2 end]
   binary scan [binary format H* $h] B* bin
@@ -41,7 +39,6 @@ puts "header_buffer:\n$hb"
 puts "<stop><start>: [hex2bin $start]"
 puts "<loading><loaddone>: [hex2bin $loading]"
 puts "nonce: $nonce"
-#puts "n_out: $n_out"
 puts "<ticket><gold_nonce32>: [hex2bin $ticket]"
 puts "nstate <MINERS1nout32><MINERS0nout32><nonce_out32><read_gold_nonce>: [hex2bin $nstate]" 
 
@@ -73,12 +70,6 @@ for {set i 119} {$i > 115} {incr i -1} {
 	append nonceram3 " $tmp"
 }
 
-set nonceram4 ""
-for {set i 123} {$i > 119} {incr i -1} {
-	set tmp [master_read_8 $m [expr $bitcoin_miner + $i] 1]
-	append nonceram4 " $tmp"
-}
-
 # Read the results from result_ram
 set resultram0 ""
 for {set i 152} {$i > 147} {incr i -1} {
@@ -104,25 +95,17 @@ for {set i 167} {$i > 162} {incr i -1} {
 	append resultram3 " $tmp"
 }
 
-set resultram4 ""
-for {set i 173} {$i > 168} {incr i -1} {
-	set tmp [master_read_8 $m [expr $bitcoin_miner + $i] 1]
-	append resultram4 " $tmp"
-}
-
 puts "Nonce Ram"
 puts "0: $nonceram0"
 puts "1: $nonceram1"
 puts "2: $nonceram2"
 puts "3: $nonceram3"
-puts "4: $nonceram4"
 
 puts "Results Ram: <ticket><golden nonce>"
 puts "0: $resultram0"
 puts "1: $resultram1"
 puts "2: $resultram2"
 puts "3: $resultram3"
-puts "4: $resultram4"
 
 close_service master $m
 puts "Closed master"
