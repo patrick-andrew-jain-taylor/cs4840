@@ -1,3 +1,5 @@
+# Reads the registers of the parallelized miner
+
 proc hex2bin {hex} {
 	set h [string range $hex 2 end]
   binary scan [binary format H* $h] B* bin

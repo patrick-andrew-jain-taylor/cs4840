@@ -1,3 +1,5 @@
+# Writes correct header buffer data to the miner
+
 # Base addresses of the peripherals: take from Qsys
 set bitcoin_miner 0x0
 
