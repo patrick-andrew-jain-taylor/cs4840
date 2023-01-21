@@ -63,20 +63,26 @@ def initialize_chain(test_dir):
         # Create cache directories, run bitcoinds:
         bitcoinds = []
         for i in range(4):
-            datadir = os.path.join("cache", "node"+str(i))
+            datadir = os.path.join("cache", f"node{str(i)}")
             os.makedirs(datadir)
             with open(os.path.join(datadir, "bitcoin.conf"), 'w') as f:
                 f.write("regtest=1\n");
                 f.write("rpcuser=rt\n");
                 f.write("rpcpassword=rt\n");
-                f.write("port="+str(START_P2P_PORT+i)+"\n");
-                f.write("rpcport="+str(START_RPC_PORT+i)+"\n");
-            args = [ "bitcoind", "-keypool=1", "-datadir="+datadir ]
+                f.write(f"port={str(START_P2P_PORT + i)}" + "\n");
+                f.write(f"rpcport={str(START_RPC_PORT + i)}" + "\n");
+            args = ["bitcoind", "-keypool=1", f"-datadir={datadir}"]
             if i > 0:
-                args.append("-connect=127.0.0.1:"+str(START_P2P_PORT))
+                args.append(f"-connect=127.0.0.1:{str(START_P2P_PORT)}")
             bitcoinds.append(subprocess.Popen(args))
-            subprocess.check_output([ "bitcoin-cli", "-datadir="+datadir,
-                                      "-rpcwait", "getblockcount"])
+            subprocess.check_output(
+                [
+                    "bitcoin-cli",
+                    f"-datadir={datadir}",
+                    "-rpcwait",
+                    "getblockcount",
+                ]
+            )
 
         rpcs = []
         for i in range(4):
@@ -84,10 +90,11 @@ def initialize_chain(test_dir):
                 url = "http://rt:rt@127.0.0.1:%d"%(START_RPC_PORT+i,)
                 rpcs.append(AuthServiceProxy(url))
             except:
-                sys.stderr.write("Error connecting to "+url+"\n")
+                sys.stderr.write(f"Error connecting to {url}" + "\n")
                 sys.exit(1)
 
-        import pdb; pdb.set_trace()
+        import pdb
+        pdb.set_trace()
 
         # Create a 200-block-long chain; each of the 4 nodes
         # gets 25 mature blocks and 25 immature.
@@ -102,8 +109,8 @@ def initialize_chain(test_dir):
             rpcs[i].stop()
 
     for i in range(4):
-        from_dir = os.path.join("cache", "node"+str(i))
-        to_dir = os.path.join(test_dir,  "node"+str(i))
+        from_dir = os.path.join("cache", f"node{str(i)}")
+        to_dir = os.path.join(test_dir, f"node{str(i)}")
         shutil.copytree(from_dir, to_dir)
 
 bitcoind_processes = []
@@ -111,11 +118,12 @@ bitcoind_processes = []
 def start_nodes(num_nodes, dir):
     # Start bitcoinds, and wait for RPC interface to be up and running:
     for i in range(num_nodes):
-        datadir = os.path.join(dir, "node"+str(i))
-        args = [ "bitcoind", "-datadir="+datadir ]
+        datadir = os.path.join(dir, f"node{str(i)}")
+        args = ["bitcoind", f"-datadir={datadir}"]
         bitcoind_processes.append(subprocess.Popen(args))
-        subprocess.check_output([ "bitcoin-cli", "-datadir="+datadir,
-                                  "-rpcwait", "getblockcount"])
+        subprocess.check_output(
+            ["bitcoin-cli", f"-datadir={datadir}", "-rpcwait", "getblockcount"]
+        )
     # Create&return JSON-RPC connections
     rpc_connections = []
     for i in range(num_nodes):
@@ -128,9 +136,9 @@ def stop_nodes():
         process.kill()
 
 def connect_nodes(from_connection, node_num):
-    ip_port = "127.0.0.1:"+str(START_P2P_PORT+node_num)
+    ip_port = f"127.0.0.1:{str(START_P2P_PORT + node_num)}"
     from_connection.addnode(ip_port, "onetry")
 
 def assert_equal(thing1, thing2):
     if thing1 != thing2:
-        raise AssertionError("%s != %s"%(str(thing1),str(thing2)))
+        raise AssertionError(f"{str(thing1)} != {str(thing2)}")

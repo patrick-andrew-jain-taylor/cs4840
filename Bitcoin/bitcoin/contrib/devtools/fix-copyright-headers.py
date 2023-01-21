@@ -28,7 +28,7 @@ listFilesCommand = "find . | grep %s"
 extensions = [".cpp",".h"]
 
 def getLastGitModifiedDate(filePath):
-  gitGetLastCommitDateCommand = "git log " + filePath +" | grep Date | head -n 1"
+  gitGetLastCommitDateCommand = f"git log {filePath} | grep Date | head -n 1"
   p = os.popen(gitGetLastCommitDateCommand)
   result = ""
   for l in p:

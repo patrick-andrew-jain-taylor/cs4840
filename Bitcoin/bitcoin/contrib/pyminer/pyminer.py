@@ -26,8 +26,8 @@ class BitcoinRPC:
 	OBJID = 1
 
 	def __init__(self, host, port, username, password):
-		authpair = "%s:%s" % (username, password)
-		self.authhdr = "Basic %s" % (base64.b64encode(authpair))
+		authpair = f"{username}:{password}"
+		self.authhdr = f"Basic {base64.b64encode(authpair)}"
 		self.conn = httplib.HTTPConnection(host, port, False, 30)
 	def rpc(self, method, params=None):
 		self.OBJID += 1
@@ -79,9 +79,7 @@ def bufreverse(in_buf):
 	return ''.join(out_words)
 
 def wordreverse(in_buf):
-	out_words = []
-	for i in range(0, len(in_buf), 4):
-		out_words.append(in_buf[i:i+4])
+	out_words = [in_buf[i:i+4] for i in range(0, len(in_buf), 4)]
 	out_words.reverse()
 	return ''.join(out_words)
 

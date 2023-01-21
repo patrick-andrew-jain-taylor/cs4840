@@ -62,10 +62,7 @@ class AuthServiceProxy(object):
         self.__service_url = service_url
         self.__service_name = service_name
         self.__url = urlparse.urlparse(service_url)
-        if self.__url.port is None:
-            port = 80
-        else:
-            port = self.__url.port
+        port = 80 if self.__url.port is None else self.__url.port
         self.__id_count = 0
         (user, passwd) = (self.__url.username, self.__url.password)
         try:
@@ -78,7 +75,7 @@ class AuthServiceProxy(object):
             pass
         authpair = user + b':' + passwd
         self.__auth_header = b'Basic ' + base64.b64encode(authpair)
-        
+
         if connection: 
             # Callables re-use the connection of the original proxy 
             self.__conn = connection
@@ -95,7 +92,7 @@ class AuthServiceProxy(object):
             # Python internal stuff
             raise AttributeError
         if self.__service_name is not None:
-            name = "%s.%s" % (self.__service_name, name)
+            name = f"{self.__service_name}.{name}"
         return AuthServiceProxy(self.__service_url, name, connection=self.__conn)
 
     def __call__(self, *args):

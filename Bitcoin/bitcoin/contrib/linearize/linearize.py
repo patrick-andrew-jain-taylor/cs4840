@@ -24,8 +24,8 @@ class BitcoinRPC:
 	OBJID = 1
 
 	def __init__(self, host, port, username, password):
-		authpair = "%s:%s" % (username, password)
-		self.authhdr = "Basic %s" % (base64.b64encode(authpair))
+		authpair = f"{username}:{password}"
+		self.authhdr = f"Basic {base64.b64encode(authpair)}"
 		self.conn = httplib.HTTPConnection(host, port, False, 30)
 	def rpc(self, method, params=None):
 		self.OBJID += 1
@@ -65,9 +65,7 @@ class BitcoinRPC:
 def getblock(rpc, settings, n):
 	hash = rpc.getblockhash(n)
 	hexdata = rpc.getblock(hash, False)
-	data = hexdata.decode('hex')
-
-	return data
+	return hexdata.decode('hex')
 
 def get_blocks(settings):
 	rpc = BitcoinRPC(settings['host'], settings['port'],
@@ -85,7 +83,7 @@ def get_blocks(settings):
 		outf.write(data)
 
 		if (height % 1000) == 0:
-			sys.stdout.write("Wrote block " + str(height) + "\n")
+			sys.stdout.write(f"Wrote block {str(height)}" + "\n")
 
 if __name__ == '__main__':
 	if len(sys.argv) != 2:
