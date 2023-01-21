@@ -9,9 +9,13 @@ rpcpass = ""
 # ====== END USER SETTINGS ======
 
 
-if rpcpass == "":
-    access = ServiceProxy("http://127.0.0.1:8332")
-else:
+access = (
+    ServiceProxy(f"http://{rpcuser}:{rpcpass}@127.0.0.1:8332")
+    if rpcpass
+    else ServiceProxy("http://127.0.0.1:8332")
+)
+cmd = sys.argv[1].lower()
+
     access = ServiceProxy("http://"+rpcuser+":"+rpcpass+"@127.0.0.1:8332")
 cmd = sys.argv[1].lower()
 
@@ -319,6 +323,3 @@ elif cmd == "walletpassphrasechange":
         print
         print "\n---An error occurred---\n"
         print
-
-else:
-    print "Command not found or not supported"

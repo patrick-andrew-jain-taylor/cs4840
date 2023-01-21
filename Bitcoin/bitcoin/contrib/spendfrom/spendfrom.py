@@ -44,10 +44,13 @@ def read_bitcoin_config(dbdir):
     """Read the bitcoin.conf file from dbdir, returns dictionary of settings"""
     from ConfigParser import SafeConfigParser
 
+
+
     class FakeSecHead(object):
         def __init__(self, fp):
             self.fp = fp
             self.sechead = '[all]\n'
+
         def readline(self):
             if self.sechead:
                 try: return self.sechead
@@ -55,8 +58,9 @@ def read_bitcoin_config(dbdir):
             else:
                 s = self.fp.readline()
                 if s.find('#') != -1:
-                    s = s[0:s.find('#')].strip() +"\n"
+                    s = s[:s.find('#')].strip() + "\n"
                 return s
+
 
     config_parser = SafeConfigParser()
     config_parser.readfp(FakeSecHead(open(os.path.join(dbdir, "bitcoin.conf"))))
@@ -66,19 +70,19 @@ def connect_JSON(config):
     """Connect to a bitcoin JSON-RPC server"""
     testnet = config.get('testnet', '0')
     testnet = (int(testnet) > 0)  # 0/1 in config file, convert to True/False
-    if not 'rpcport' in config:
+    if 'rpcport' not in config:
         config['rpcport'] = 18332 if testnet else 8332
-    connect = "http://%s:%s@127.0.0.1:%s"%(config['rpcuser'], config['rpcpassword'], config['rpcport'])
+    connect = f"http://{config['rpcuser']}:{config['rpcpassword']}@127.0.0.1:{config['rpcport']}"
     try:
         result = ServiceProxy(connect)
         # ServiceProxy is lazy-connect, so send an RPC command mostly to catch connection errors,
         # but also make sure the bitcoind we're talking to is/isn't testnet:
         if result.getmininginfo()['testnet'] != testnet:
-            sys.stderr.write("RPC server at "+connect+" testnet setting mismatch\n")
+            sys.stderr.write(f"RPC server at {connect}" + " testnet setting mismatch\n")
             sys.exit(1)
         return result
     except:
-        sys.stderr.write("Error connecting to RPC server at "+connect+"\n")
+        sys.stderr.write(f"Error connecting to RPC server at {connect}" + "\n")
         sys.exit(1)
 
 def unlock_wallet(bitcoind):
@@ -97,12 +101,12 @@ def unlock_wallet(bitcoind):
     return int(info['unlocked_until']) > time.time()
 
 def list_available(bitcoind):
-    address_summary = dict()
+    address_summary = {}
 
-    address_to_account = dict()
-    for info in bitcoind.listreceivedbyaddress(0):
-        address_to_account[info["address"]] = info["account"]
-
+    address_to_account = {
+        info["address"]: info["account"]
+        for info in bitcoind.listreceivedbyaddress(0)
+    }
     unspent = bitcoind.listunspent(0)
     for output in unspent:
         # listunspent doesn't give addresses, so:
@@ -112,9 +116,9 @@ def list_available(bitcoind):
 
         # This code only deals with ordinary pay-to-bitcoin-address
         # or pay-to-script-hash outputs right now; anything exotic is ignored.
-        if pk["type"] != "pubkeyhash" and pk["type"] != "scripthash":
+        if pk["type"] not in ["pubkeyhash", "scripthash"]:
             continue
-        
+
         address = pk["addresses"][0]
         if address in address_summary:
             address_summary[address]["total"] += vout["value"]
@@ -175,9 +179,7 @@ def create_tx(bitcoind, fromaddresses, toaddress, amount, fee):
     if not signed_rawtx["complete"]:
         sys.stderr.write("signrawtransaction failed\n")
         sys.exit(1)
-    txdata = signed_rawtx["hex"]
-
-    return txdata
+    return signed_rawtx["hex"]
 
 def compute_amount_in(bitcoind, txinfo):
     result = Decimal("0.0")
@@ -194,6 +196,7 @@ def compute_amount_out(txinfo):
     return result
 
 def sanity_test_fee(bitcoind, txdata_hex, max_fee):
+
     class FeeError(RuntimeError):
         pass
     try:
@@ -201,7 +204,9 @@ def sanity_test_fee(bitcoind, txdata_hex, max_fee):
         total_in = compute_amount_in(bitcoind, txinfo)
         total_out = compute_amount_out(txinfo)
         if total_in-total_out > max_fee:
-            raise FeeError("Rejecting transaction, unreasonable fee of "+str(total_in-total_out))
+            raise FeeError(
+                f"Rejecting transaction, unreasonable fee of {str(total_in - total_out)}"
+            )
 
         tx_size = len(txdata_hex)/2
         kb = tx_size/1000  # integer division rounds down
@@ -209,8 +214,8 @@ def sanity_test_fee(bitcoind, txdata_hex, max_fee):
             raise FeeError("Rejecting no-fee transaction, larger than 1000 bytes")
         if total_in < 0.01 and fee < BASE_FEE:
             raise FeeError("Rejecting no-fee, tiny-amount transaction")
-        # Exercise for the reader: compute transaction priority, and
-        # warn if this is a very-low-priority transaction
+            # Exercise for the reader: compute transaction priority, and
+            # warn if this is a very-low-priority transaction
 
     except FeeError as err:
         sys.stderr.write((str(err)+"\n"))

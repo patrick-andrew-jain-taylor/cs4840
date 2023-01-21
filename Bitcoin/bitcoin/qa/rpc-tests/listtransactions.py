@@ -25,18 +25,15 @@ def check_array_result(object_array, to_match, expected):
     """
     num_matched = 0
     for item in object_array:
-        all_match = True
-        for key,value in to_match.items():
-            if item[key] != value:
-                all_match = False
+        all_match = all(item[key] == value for key, value in to_match.items())
         if not all_match:
             continue
-        for key,value in expected.items():
+        for key, value in expected.items():
             if item[key] != value:
-                raise AssertionError("%s : expected %s=%s"%(str(item), str(key), str(value)))
+                raise AssertionError(f"{str(item)} : expected {str(key)}={str(value)}")
             num_matched = num_matched+1
     if num_matched == 0:
-        raise AssertionError("No objects matched %s"%(str(to_match)))
+        raise AssertionError(f"No objects matched {str(to_match)}")
 
 def run_test(nodes):
     # Simple send, 0 to 1:
@@ -110,13 +107,13 @@ def main():
                       help="Root directory for datadirs")
     (options, args) = parser.parse_args()
 
-    os.environ['PATH'] = options.srcdir+":"+os.environ['PATH']
+    os.environ['PATH'] = f"{options.srcdir}:" + os.environ['PATH']
 
     check_json_precision()
 
     success = False
     try:
-        print("Initializing test directory "+options.tmpdir)
+        print(f"Initializing test directory {options.tmpdir}")
         if not os.path.isdir(options.tmpdir):
             os.makedirs(options.tmpdir)
         initialize_chain(options.tmpdir)
@@ -129,9 +126,9 @@ def main():
         success = True
 
     except AssertionError as e:
-        print("Assertion failed: "+e.message)
+        print(f"Assertion failed: {e.message}")
     except Exception as e:
-        print("Unexpected exception caught during testing: "+str(e))
+        print(f"Unexpected exception caught during testing: {str(e)}")
         stack = traceback.extract_tb(sys.exc_info()[2])
         print(stack[-1])
 

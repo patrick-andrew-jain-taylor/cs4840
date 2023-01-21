@@ -23,10 +23,7 @@ b58chars = __b58chars
 def b58encode(v):
     """ encode v, which is a string of bytes, to base58.
     """
-    long_value = 0
-    for (i, c) in enumerate(v[::-1]):
-        long_value += (256**i) * ord(c)
-
+    long_value = sum((256**i) * ord(c) for i, c in enumerate(v[::-1]))
     result = ''
     while long_value >= __b58base:
         div, mod = divmod(long_value, __b58base)
@@ -46,10 +43,9 @@ def b58encode(v):
 def b58decode(v, length = None):
     """ decode v into a string of len bytes
     """
-    long_value = 0
-    for (i, c) in enumerate(v[::-1]):
-        long_value += __b58chars.find(c) * (__b58base**i)
-
+    long_value = sum(
+        __b58chars.find(c) * (__b58base**i) for i, c in enumerate(v[::-1])
+    )
     result = bytes()
     while long_value >= 256:
         div, mod = divmod(long_value, 256)
@@ -63,14 +59,11 @@ def b58decode(v, length = None):
         else: break
 
     result = chr(0)*nPad + result
-    if length is not None and len(result) != length:
-        return None
-
-    return result
+    return None if length is not None and len(result) != length else result
 
 def checksum(v):
     """Return 32-bit checksum based on SHA256"""
-    return SHA256.new(SHA256.new(v).digest()).digest()[0:4]
+    return SHA256.new(SHA256.new(v).digest()).digest()[:4]
 
 def b58encode_chk(v):
     """b58encode a string, with 32-bit checksum"""
@@ -82,17 +75,12 @@ def b58decode_chk(v):
     if result is None:
         return None
     h3 = checksum(result[:-4])
-    if result[-4:] == checksum(result[:-4]):
-        return result[:-4]
-    else:
-        return None
+    return result[:-4] if result[-4:] == checksum(result[:-4]) else None
 
 def get_bcaddress_version(strAddress):
     """ Returns None if strAddress is invalid.  Otherwise returns integer version of address. """
     addr = b58decode_chk(strAddress)
-    if addr is None or len(addr)!=21: return None
-    version = addr[0]
-    return ord(version)
+    return None if addr is None or len(addr)!=21 else ord(addr[0])
 
 if __name__ == '__main__':
     # Test case (from http://gitorious.org/bitcoin/python-base58.git)
